@@ -17,4 +17,7 @@ These are common commands used during development:
 
    mix format
 
+   mix lint
+   mix lint explain Credo.Check.Refactor.Nesting
+
 HEREDOC
