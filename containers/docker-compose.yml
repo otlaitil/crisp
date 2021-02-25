@@ -22,3 +22,43 @@ services:
       - "4000:4000"
     volumes:
       - ..:/app
+  hub:
+    image: selenium/hub:3.141.59
+    ports:
+      - "4444:4444"
+  firefox:
+    image: selenium/node-firefox:3.141.59
+    environment:
+      - HUB_HOST=hub
+      - HUB_PORT=4444
+    depends_on:
+      - hub
+    volumes:
+      - /dev/shm:/dev/shm
+  chrome:
+    image: selenium/node-chrome:3.141.59
+    environment:
+      - HUB_HOST=hub
+      - HUB_PORT=4444
+    depends_on:
+      - hub
+    volumes:
+      - /dev/shm:/dev/shm
+  system-test-chrome:
+    build: robot
+    command: robot --variable BROWSER:chrome --outputdir /out /app
+    volumes:
+      - ../system-test:/app:ro
+      - ../system-test/results/chrome:/out:rw
+    depends_on:
+      - web
+      - chrome
+  system-test-firefox:
+    build: robot
+    command: robot --variable BROWSER:firefox --outputdir /out /app
+    volumes:
+      - ../system-test:/app:ro
+      - ../system-test/results/firefox:/out:rw
+    depends_on:
+      - web
+      - firefox

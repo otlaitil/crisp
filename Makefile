@@ -17,8 +17,11 @@ sh:
 db:
 	$(RUN) db-console
 
+system-test:
+	$(RUN) system-test-chrome
+
 # Aliases
 
 c: console
 
-.PHONY: setup clean console sh db c
+.PHONY: setup clean console sh db system-test c
