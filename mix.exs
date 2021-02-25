@@ -40,6 +40,7 @@ defmodule Crisp.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:bcrypt_elixir, "~> 2.3"},
       {:ecto_sql, "~> 3.4"},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
@@ -57,6 +58,7 @@ defmodule Crisp.MixProject do
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1", only: :dev, runtime: false},
       {:ex_doc, "~> 0.23", only: :dev, runtime: false},
+      {:phx_gen_auth, "~> 0.6", only: :dev, runtime: false},
       {:sobelow, "~> 0.11", only: :dev, runtime: false}
     ]
   end
