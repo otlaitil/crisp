@@ -47,7 +47,8 @@ defmodule Crisp.MixProject do
       {:telemetry_poller, "~> 0.4"},
 
       ## Development
-      {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.1", only: :dev, runtime: false}
     ]
   end
 
@@ -63,6 +64,7 @@ defmodule Crisp.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       lint: ["credo"],
       setup: ["deps.get", "ecto.setup", "cmd npm install --prefix assets"],
+      tc: ["dialyzer"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
     ]
   end

@@ -20,4 +20,6 @@ These are common commands used during development:
    mix lint
    mix lint explain Credo.Check.Refactor.Nesting
 
+   mix tc   # Type check with dialyzer
+
 HEREDOC
