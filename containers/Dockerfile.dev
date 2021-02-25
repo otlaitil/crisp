@@ -1,0 +1,30 @@
+FROM elixir:1.11.3-alpine
+
+WORKDIR /app
+
+#
+# Install runtime dependencies
+#
+# Dependency     Required by
+# -----------------------------------------
+# inotify-tools  phoenix: live reloading
+# npm            phoenix: asset compilation
+# tzdata         set timezone
+#
+RUN apk add --no-cache \
+ inotify-tools=3.20.11.0-r0 \
+ npm=14.16.0-r0 \
+ tzdata=2021a-r0
+
+# Set local timezone
+RUN ln -sf /usr/share/zoneinfo/Europe/Helsinki /etc/localtime \
+ && echo "Europe/Helsinki" > /etc/timezone
+
+# Install hex and rebar
+RUN mix local.hex --force \
+ && mix local.rebar --force
+
+# Add shell profile
+COPY containers/profile /root/.profile
+
+CMD ["mix", "phx.server"]

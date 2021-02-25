@@ -1,0 +1,20 @@
+# If not running interactively, don't do anything.
+[ -z "$PS1" ] && return
+
+PS1="\[\e[37m\][\[\e[m\]\[\e[32m\]dev\[\e[m\]\[\e[37m\]]\[\e[m\] \W \\$ "
+
+cat <<- HEREDOC
+
+Welcome to Crisp!
+
+These are common commands used during development:
+
+   mix test
+   mix test --cover
+   mix test test/some/particular/dir
+   mix test test/some/particular/file_test.exs
+   mix test test/some/particular/file_test.exs:12
+
+   mix format
+
+HEREDOC
