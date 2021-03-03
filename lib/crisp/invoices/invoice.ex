@@ -9,7 +9,7 @@ defmodule Crisp.Invoices.Invoice do
     field :description, :string
 
     belongs_to :user, User
-    has_many :invoice_rows, InvoiceRow, on_delete: :delete_all
+    has_many :invoice_rows, InvoiceRow, on_delete: :delete_all, on_replace: :delete
 
     timestamps()
   end

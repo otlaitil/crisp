@@ -6,6 +6,7 @@ defmodule Crisp.Invoices.InvoiceRow do
   schema "invoice_rows" do
     field :title, :string
     field :amount, :integer
+    field :delete, :boolean, virtual: true
 
     belongs_to :invoice, Invoice
 
@@ -15,7 +16,16 @@ defmodule Crisp.Invoices.InvoiceRow do
   @doc false
   def changeset(invoice, attrs) do
     invoice
-    |> cast(attrs, [:title, :amount, :invoice_id])
+    |> cast(attrs, [:title, :amount, :invoice_id, :delete])
+    |> mark_for_destruction
     |> validate_required([:title, :amount])
+  end
+
+  defp mark_for_destruction(changeset) do
+    if get_change(changeset, :delete) do
+      %{changeset | action: :delete}
+    else
+      changeset
+    end
   end
 end

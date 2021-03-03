@@ -26,6 +26,9 @@
       <%= label f_row, :amount, "Row ##{f_row.index + 1} amount", class: "control-label" %>
       <%= number_input f_row, :amount, class: "form-control" %>
       <%= error_tag f_row, :amount %>
+
+      <%= label f_row, :delete, "Delete?", class: "control-label" %>
+      <%= checkbox f_row, :delete %>
     </div>
   <% end %>
 
