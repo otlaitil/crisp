@@ -35,7 +35,9 @@ defmodule Crisp.Invoices do
       ** (Ecto.NoResultsError)
 
   """
-  def get_invoice!(id), do: Repo.get!(Invoice, id)
+  def get_invoice!(id) do
+    Repo.get!(Invoice, id) |> Repo.preload(:invoice_rows)
+  end
 
   @doc """
   Creates a invoice.

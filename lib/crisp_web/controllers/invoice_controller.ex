@@ -3,6 +3,7 @@ defmodule CrispWeb.InvoiceController do
 
   alias Crisp.Invoices
   alias Crisp.Invoices.Invoice
+  alias Crisp.Invoices.InvoiceRow
 
   def index(conn, _params) do
     invoices = Invoices.list_invoices()
@@ -10,7 +11,7 @@ defmodule CrispWeb.InvoiceController do
   end
 
   def new(conn, _params) do
-    changeset = Invoices.change_invoice(%Invoice{})
+    changeset = Invoices.change_invoice(%Invoice{invoice_rows: [%InvoiceRow{}, %InvoiceRow{}]})
     render(conn, "new.html", changeset: changeset)
   end
 
