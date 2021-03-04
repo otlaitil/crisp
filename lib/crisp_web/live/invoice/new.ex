@@ -21,8 +21,37 @@ defmodule CrispWeb.InvoiceLive.New do
   end
 
   def handle_event("add-row", _params, socket) do
-    existing_rows = Map.get(socket.assigns.changeset.changes, :invoice_rows, [%InvoiceRow{}])
-    updated_rows = existing_rows ++ [%InvoiceRow{}]
+    existing_rows =
+      Map.get(
+        socket.assigns.changeset.changes,
+        :invoice_rows,
+        socket.assigns.invoice.invoice_rows
+      )
+
+    updated_rows = existing_rows ++ [build_row()]
+
+    changeset = socket.assigns.changeset |> Ecto.Changeset.put_assoc(:invoice_rows, updated_rows)
+
+    {:noreply, assign(socket, changeset: changeset)}
+  end
+
+  def handle_event("remove-row", %{"temp-id" => removable_id}, socket) do
+    existing_rows =
+      Map.get(
+        socket.assigns.changeset.changes,
+        :invoice_rows
+      )
+
+    updated_rows =
+      existing_rows
+      |> Enum.filter(fn row ->
+        removable_id !=
+          Map.get(
+            row.changes,
+            :temp_id,
+            row.data.temp_id
+          )
+      end)
 
     changeset = socket.assigns.changeset |> Ecto.Changeset.put_assoc(:invoice_rows, updated_rows)
 
@@ -43,11 +72,17 @@ defmodule CrispWeb.InvoiceLive.New do
   end
 
   defp assign_locals(socket) do
-    changeset = Invoices.change_invoice(%Invoice{invoice_rows: [%InvoiceRow{}]})
+    invoice = %Invoice{invoice_rows: [build_row()]}
+    changeset = Invoices.change_invoice(invoice)
     users = CrispWeb.InvoiceView.users()
 
     socket
+    |> assign(invoice: invoice)
     |> assign(changeset: changeset)
     |> assign(users: users)
+  end
+
+  defp build_row() do
+    InvoiceRow.changeset(%InvoiceRow{}, %{temp_id: Ecto.UUID.generate()})
   end
 end

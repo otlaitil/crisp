@@ -8,15 +8,18 @@ defmodule Crisp.Invoices.InvoiceRow do
     field :amount, :integer
     field :delete, :boolean, virtual: true
 
-    belongs_to :invoice, Invoice
+    field :temp_id, :string, virtual: true
+
+    belongs_to(:invoice, Invoice)
 
     timestamps()
   end
 
   @doc false
-  def changeset(invoice, attrs) do
-    invoice
-    |> cast(attrs, [:title, :amount, :invoice_id, :delete])
+  def changeset(invoice_row, attrs) do
+    invoice_row
+    |> Map.put(:temp_id, invoice_row.temp_id || attrs["temp_id"])
+    |> cast(attrs, [:title, :amount, :invoice_id, :delete, :temp_id])
     |> mark_for_destruction
     |> validate_required([:title, :amount])
   end

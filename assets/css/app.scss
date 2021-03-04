@@ -34,3 +34,13 @@
   display: block;
   margin: -1rem 0 2rem;
 }
+
+.invoice-row {
+  border: 1px solid #F1F1F1;
+  padding: 5px;
+  margin: 5px 0;
+
+  .delete-row {
+    float: right;
+  }
+}

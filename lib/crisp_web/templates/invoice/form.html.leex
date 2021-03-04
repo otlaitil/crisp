@@ -13,6 +13,18 @@
 
 <%= for {f_row, index} <- Enum.with_index(inputs_for f, :invoice_rows) do %>
   <div class="form-group invoice-row">
+    <div class='delete-row'>
+      <%= if index > 0 do %>
+        <%= link "Delete row", to: "#",
+            "phx-click": "remove-row",
+            "phx-value-temp-id": f_row.data.temp_id || f_row.source.changes.temp_id
+        %>
+      <% end %>
+    </div>
+
+    <%= hidden_input f_row, :id %>
+    <%= hidden_input f_row, :temp_id %>
+
     <%= label f_row, :title, "Row ##{index + 1} title", class: "control-label" %>
     <%= text_input f_row, :title, class: "form-control" %>
     <%= error_tag f_row, :title %>
