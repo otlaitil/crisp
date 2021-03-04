@@ -1,0 +1,53 @@
+defmodule CrispWeb.InvoiceLive.New do
+  use CrispWeb, :live_view
+
+  alias Crisp.Invoices
+  alias Crisp.Invoices.Invoice
+  alias Crisp.Invoices.InvoiceRow
+
+  def render(assigns), do: Phoenix.View.render(CrispWeb.InvoiceView, "new.html", assigns)
+
+  def mount(_params, _session, socket) do
+    {:ok, assign_locals(socket)}
+  end
+
+  def handle_event("validate", %{"invoice" => params}, socket) do
+    changeset =
+      %Invoice{}
+      |> Invoices.change_invoice(params)
+      |> Map.put(:action, :insert)
+
+    {:noreply, assign(socket, changeset: changeset)}
+  end
+
+  def handle_event("add-row", _params, socket) do
+    existing_rows = Map.get(socket.assigns.changeset.changes, :invoice_rows, [%InvoiceRow{}])
+    updated_rows = existing_rows ++ [%InvoiceRow{}]
+
+    changeset = socket.assigns.changeset |> Ecto.Changeset.put_assoc(:invoice_rows, updated_rows)
+
+    {:noreply, assign(socket, changeset: changeset)}
+  end
+
+  def handle_event("save", %{"invoice" => params}, socket) do
+    case Invoices.create_invoice(params) do
+      {:ok, invoice} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Invoice created successfully.")
+         |> redirect(to: Routes.invoice_path(socket, :show, invoice))}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, assign(socket, changeset: changeset)}
+    end
+  end
+
+  defp assign_locals(socket) do
+    changeset = Invoices.change_invoice(%Invoice{invoice_rows: [%InvoiceRow{}]})
+    users = CrispWeb.InvoiceView.users()
+
+    socket
+    |> assign(changeset: changeset)
+    |> assign(users: users)
+  end
+end

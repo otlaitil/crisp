@@ -11,8 +11,7 @@ defmodule CrispWeb.InvoiceController do
   end
 
   def new(conn, _params) do
-    changeset = Invoices.change_invoice(%Invoice{invoice_rows: [%InvoiceRow{}, %InvoiceRow{}]})
-    render(conn, "new.html", changeset: changeset)
+    live_render(conn, CrispWeb.InvoiceLive.New)
   end
 
   def create(conn, %{"invoice" => invoice_params}) do

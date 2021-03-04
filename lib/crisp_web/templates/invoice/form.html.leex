@@ -1,0 +1,32 @@
+<%= f = form_for @changeset, "#", [phx_change: :validate, phx_submit: :save] %>
+
+<%= label f, :user %>
+<%= select f, :user_id, @users %>
+
+<%= label f, :amount %>
+<%= number_input f, :amount %>
+<%= error_tag f, :amount %>
+
+<%= label f, :description %>
+<%= text_input f, :description %>
+<%= error_tag f, :description %>
+
+<%= for {f_row, index} <- Enum.with_index(inputs_for f, :invoice_rows) do %>
+  <div class="form-group invoice-row">
+    <%= label f_row, :title, "Row ##{index + 1} title", class: "control-label" %>
+    <%= text_input f_row, :title, class: "form-control" %>
+    <%= error_tag f_row, :title %>
+
+    <%= label f_row, :amount, "Row ##{index + 1} amount", class: "control-label" %>
+    <%= number_input f_row, :amount, class: "form-control" %>
+    <%= error_tag f_row, :amount %>
+  </div>
+<% end %>
+
+<div>
+  <%= link "Add row", to: "#", "phx-click": "add-row" %>
+</div>
+
+<div>
+  <%= submit "Save" %>
+</div>
