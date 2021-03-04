@@ -11,48 +11,35 @@ defmodule CrispWeb.InvoiceLive.New do
     {:ok, assign_locals(socket)}
   end
 
-  def handle_event("validate", %{"invoice" => params}, socket) do
+  def handle_event("validate-and-calculate-totals", %{"invoice" => params}, socket) do
     changeset =
       %Invoice{}
       |> Invoices.change_invoice(params)
       |> Map.put(:action, :insert)
 
-    {:noreply, assign(socket, changeset: changeset)}
+    {
+      :noreply,
+      socket
+      |> assign(changeset: changeset)
+      |> assign(totals: calculate_totals(changeset))
+    }
   end
 
   def handle_event("add-row", _params, socket) do
-    existing_rows =
-      Map.get(
-        socket.assigns.changeset.changes,
-        :invoice_rows,
-        socket.assigns.invoice.invoice_rows
-      )
-
+    existing_rows = socket.assigns.changeset.changes[:invoice_rows] || []
     updated_rows = existing_rows ++ [build_row()]
 
-    changeset = socket.assigns.changeset |> Ecto.Changeset.put_assoc(:invoice_rows, updated_rows)
+    changeset =
+      socket.assigns.changeset
+      |> Ecto.Changeset.put_assoc(:invoice_rows, updated_rows)
 
     {:noreply, assign(socket, changeset: changeset)}
   end
 
   def handle_event("remove-row", %{"temp-id" => removable_id}, socket) do
-    existing_rows =
-      Map.get(
-        socket.assigns.changeset.changes,
-        :invoice_rows
-      )
+    existing_rows = socket.assigns.changeset.changes[:invoice_rows] || []
 
-    updated_rows =
-      existing_rows
-      |> Enum.filter(fn row ->
-        removable_id !=
-          Map.get(
-            row.changes,
-            :temp_id,
-            row.data.temp_id
-          )
-      end)
-
+    updated_rows = Enum.filter(existing_rows, fn row -> removable_id != row.changes[:temp_id] end)
     changeset = socket.assigns.changeset |> Ecto.Changeset.put_assoc(:invoice_rows, updated_rows)
 
     {:noreply, assign(socket, changeset: changeset)}
@@ -72,14 +59,29 @@ defmodule CrispWeb.InvoiceLive.New do
   end
 
   defp assign_locals(socket) do
-    invoice = %Invoice{invoice_rows: [build_row()]}
+    invoice = %Invoice{}
     changeset = Invoices.change_invoice(invoice)
     users = CrispWeb.InvoiceView.users()
 
     socket
     |> assign(invoice: invoice)
+    |> assign(totals: calculate_totals(changeset))
     |> assign(changeset: changeset)
     |> assign(users: users)
+  end
+
+  defp calculate_totals(changeset) do
+    rows = Map.get(changeset.changes, :invoice_rows)
+
+    if rows do
+      subtotal = Enum.reduce(rows, 0, fn row, acc -> acc + (row.changes[:amount] || 0) end)
+      vat_amount = Float.ceil(subtotal * 0.24, 2)
+      total = subtotal + vat_amount
+
+      %{subtotal: subtotal, vat_amount: vat_amount, total: total}
+    else
+      %{subtotal: 0, vat_amount: 0, total: 0}
+    end
   end
 
   defp build_row() do

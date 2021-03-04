@@ -60,7 +60,10 @@ defmodule Crisp.MixProject do
       {:dialyxir, "~> 1.1", only: :dev, runtime: false},
       {:ex_doc, "~> 0.23", only: :dev, runtime: false},
       {:phx_gen_auth, "~> 0.6", only: :dev, runtime: false},
-      {:sobelow, "~> 0.11", only: :dev, runtime: false}
+      {:sobelow, "~> 0.11", only: :dev, runtime: false},
+
+      ## Test
+      {:floki, ">= 0.27.0", only: :test}
     ]
   end
 

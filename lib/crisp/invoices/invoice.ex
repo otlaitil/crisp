@@ -19,6 +19,6 @@ defmodule Crisp.Invoices.Invoice do
     invoice
     |> cast(attrs, [:amount, :description, :user_id])
     |> cast_assoc(:invoice_rows)
-    |> validate_required([:amount, :description, :user_id])
+    |> validate_required([:description, :user_id])
   end
 end
