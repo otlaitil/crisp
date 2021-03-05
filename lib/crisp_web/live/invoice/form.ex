@@ -1,14 +1,20 @@
-defmodule CrispWeb.InvoiceLive.New do
+defmodule CrispWeb.InvoiceLive.Form do
   use CrispWeb, :live_view
 
   alias Crisp.Invoices
   alias Crisp.Invoices.Invoice
   alias Crisp.Invoices.InvoiceRow
 
-  def render(assigns), do: Phoenix.View.render(CrispWeb.InvoiceView, "new.html", assigns)
+  def render(assigns), do: Phoenix.View.render(CrispWeb.InvoiceView, assigns.template, assigns)
+
+  def mount(_params, %{"invoice_id" => id}, socket) do
+    invoice = Invoices.get_invoice!(id)
+    {:ok, assign_locals(socket, invoice, "edit.html")}
+  end
 
   def mount(_params, _session, socket) do
-    {:ok, assign_locals(socket)}
+    invoice = %Invoice{}
+    {:ok, assign_locals(socket, invoice, "new.html")}
   end
 
   def handle_event("validate-and-calculate-totals", %{"invoice" => params}, socket) do
@@ -60,8 +66,7 @@ defmodule CrispWeb.InvoiceLive.New do
     end
   end
 
-  defp assign_locals(socket) do
-    invoice = %Invoice{}
+  defp assign_locals(socket, invoice, template) do
     changeset = Invoices.change_invoice(invoice)
     users = CrispWeb.InvoiceView.users()
 
@@ -69,6 +74,7 @@ defmodule CrispWeb.InvoiceLive.New do
     |> assign(totals: calculate_totals(changeset))
     |> assign(changeset: changeset)
     |> assign(users: users)
+    |> assign(template: template)
   end
 
   # Getting invoice (and especially rows) has a minor inconvenience:

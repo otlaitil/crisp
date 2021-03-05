@@ -1,4 +1,4 @@
-defmodule CrispWeb.Live.NewInvoiceTest do
+defmodule CrispWeb.Live.InvoiceFormTest do
   use CrispWeb.ConnCase
 
   setup do

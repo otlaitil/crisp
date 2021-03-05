@@ -11,7 +11,7 @@ defmodule CrispWeb.InvoiceController do
   end
 
   def new(conn, _params) do
-    live_render(conn, CrispWeb.InvoiceLive.New)
+    live_render(conn, CrispWeb.InvoiceLive.Form)
   end
 
   def create(conn, %{"invoice" => invoice_params}) do
@@ -32,9 +32,7 @@ defmodule CrispWeb.InvoiceController do
   end
 
   def edit(conn, %{"id" => id}) do
-    invoice = Invoices.get_invoice!(id)
-    changeset = Invoices.change_invoice(invoice)
-    render(conn, "edit.html", invoice: invoice, changeset: changeset)
+    live_render(conn, CrispWeb.InvoiceLive.Form, session: %{"invoice_id" => id})
   end
 
   def update(conn, %{"id" => id, "invoice" => invoice_params}) do
