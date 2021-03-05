@@ -76,7 +76,7 @@ defmodule CrispWeb.InvoiceLive.New do
     if rows do
       subtotal = Enum.reduce(rows, 0, fn row, acc -> acc + (row.changes[:amount] || 0) end)
       vat_amount = Float.ceil(subtotal * 0.24, 2)
-      total = subtotal + vat_amount
+      total = Float.ceil(subtotal + vat_amount, 2)
 
       %{subtotal: subtotal, vat_amount: vat_amount, total: total}
     else

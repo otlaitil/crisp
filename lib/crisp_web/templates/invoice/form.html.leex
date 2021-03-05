@@ -8,7 +8,7 @@
 <%= error_tag f, :description %>
 
 <%= for {f_row, index} <- Enum.with_index(inputs_for f, :invoice_rows) do %>
-  <div class="form-group invoice-row">
+  <div class="form-group invoice-row row-<%= index + 1 %>">
     <div class='delete-row'>
       <%= if index > 0 do %>
         <%= link "Delete row", to: "#",
@@ -34,7 +34,7 @@
 <% end %>
 
 <div>
-  <%= link "Add row", to: "#", "phx-click": "add-row", id: "add-row" %>
+  <%= link "Add row", to: "#", "phx-click": "add-row", class: "add-row" %>
 </div>
 
 <div class='totals'>
