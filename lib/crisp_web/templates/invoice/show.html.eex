@@ -1,17 +1,10 @@
 <h1>Show Invoice</h1>
 
 <ul>
-
-  <li>
-    <strong>Amount:</strong>
-    <%= @invoice.amount %>
-  </li>
-
   <li>
     <strong>Description:</strong>
     <%= @invoice.description %>
   </li>
-
 </ul>
 
 <span><%= link "Edit", to: Routes.invoice_path(@conn, :edit, @invoice) %></span>
