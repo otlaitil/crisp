@@ -4,7 +4,7 @@
 <%= select f, :user_id, @users %>
 
 <%= label f, :description %>
-<%= text_input f, :description %>
+<%= text_input f, :description, "phx-debounce": "blur" %>
 <%= error_tag f, :description %>
 
 <%= for {f_row, index} <- Enum.with_index(inputs_for f, :invoice_rows) do %>
@@ -22,11 +22,11 @@
     <%= hidden_input f_row, :temp_id %>
 
     <%= label f_row, :title, "Row ##{index + 1} title", class: "control-label" %>
-    <%= text_input f_row, :title, class: "form-control" %>
+    <%= text_input f_row, :title, class: "form-control", "phx-debounce": "blur" %>
     <%= error_tag f_row, :title %>
 
     <%= label f_row, :amount, "Row ##{index + 1} amount (vat 0%)", class: "control-label" %>
-    <%= number_input f_row, :amount, class: "form-control" %>
+    <%= number_input f_row, :amount, class: "form-control", "phx-debounce": "blur" %>
     <%= error_tag f_row, :amount %>
 
   </div>

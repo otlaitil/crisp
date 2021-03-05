@@ -44,3 +44,7 @@
     float: right;
   }
 }
+
+.phx-no-feedback.invalid-feedback, .phx-no-feedback .invalid-feedback {
+  display: none;
+}
