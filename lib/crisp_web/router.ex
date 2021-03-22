@@ -17,6 +17,10 @@ defmodule CrispWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    get "/liity", AccountRegistrationController, :new
+    # TODO(jouni): Not my favorite controller or method name
+    post "/liity", AccountRegistrationController, :create
+    get "/redirecturi", AccountRegistrationController, :show
   end
 
   # Other scopes may use custom stacks.
