@@ -26,6 +26,8 @@ defmodule Crisp.Accounts do
   end
 
   # TODO: Bad name? What is the responsibility of this module?
+  # TODO: case condition is probably a bitch to test, it might be necessary to extract it to a function
+  # TODO: Better error handling. If base64 decoding fails, `:error` is returned. Otherwise this might be fine?
   def get_identity(state, authorization_code) do
     with(
       {:ok, query} <- AuthorizationCodeRequest.verify_query(state),
@@ -58,6 +60,9 @@ defmodule Crisp.Accounts do
         _ ->
           :error
       end
+    else
+      nil -> {:error, "AuthorizationCodeRequest expired or not found"}
+      error -> error
     end
   end
 end

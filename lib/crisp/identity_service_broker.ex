@@ -17,7 +17,7 @@ defmodule Crisp.IdentityServiceBroker do
 
   # TODO: Compare nonce
   def get_identity(_authorization_code, nonce) do
-    %Identity{
+    identity = %Identity{
       birthdate: ~D[1900-01-01],
       given_name: "Matti Matias",
       family_name: "von Möttönen",
@@ -25,5 +25,11 @@ defmodule Crisp.IdentityServiceBroker do
       personal_identity_code: "010100-969P",
       nonce: nonce
     }
+
+    if identity.nonce == nonce do
+      {:ok, identity}
+    else
+      {:error, "Nonce mismatch"}
+    end
   end
 end
