@@ -15,6 +15,7 @@ defmodule Crisp.IdentityServiceBroker do
     ]
   end
 
+  # TODO: Compare nonce
   def get_identity(_authorization_code, nonce) do
     %Identity{
       birthdate: ~D[1900-01-01],

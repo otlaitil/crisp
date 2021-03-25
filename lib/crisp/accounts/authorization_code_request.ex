@@ -1,6 +1,7 @@
 defmodule Crisp.Accounts.AuthorizationCodeRequest do
   use Ecto.Schema
   import Ecto.Changeset
+  import Ecto.Query
 
   @hash_algorithm :sha256
   @state_rand_size 32
@@ -40,5 +41,21 @@ defmodule Crisp.Accounts.AuthorizationCodeRequest do
         state: hashed_state_token
       }
     }
+  end
+
+  def verify_query(state_token) do
+    case Base.url_decode64(state_token, padding: false) do
+      {:ok, decoded_token} ->
+        hashed_token = :crypto.hash(@hash_algorithm, decoded_token)
+
+        query =
+          from r in __MODULE__,
+            where: r.expired_at > ^NaiveDateTime.utc_now() and r.state == ^hashed_token
+
+        {:ok, query}
+
+      :error ->
+        :error
+    end
   end
 end

@@ -1,5 +1,6 @@
 defmodule Crisp.Accounts do
   import Ecto.Query
+  alias Crisp.Repo
   alias Crisp.Accounts.Employee
   alias Crisp.IdentityServiceBroker
   alias Crisp.Accounts.AuthorizationCodeRequest
@@ -26,35 +27,37 @@ defmodule Crisp.Accounts do
 
   # TODO: Bad name? What is the responsibility of this module?
   def get_identity(state, authorization_code) do
-    request =
-      Crisp.Repo.one(
-        from r in AuthorizationCodeRequest,
-          where: r.expired_at <= ^NaiveDateTime.utc_now() and r.state == ^state
-      )
+    with(
+      {:ok, query} <- AuthorizationCodeRequest.verify_query(state),
+      %AuthorizationCodeRequest{} = request <- Repo.one(query),
+      {:ok, identity} <- IdentityServiceBroker.get_identity(authorization_code, request.nonce)
+      # employee = get_by_personal_identity_code(identity.personal_identity_code)
+    ) do
+      # TODO: Delete me
+      employee = nil
 
-    if request do
-      identity = IdentityServiceBroker.get_identity(authorization_code, request.nonce)
+      case {request.context, employee} do
+        {:registration, nil} ->
+          {:registered}
 
-      # TODO: secure_compare?
-      if identity.nonce == request.nonce do
-        # person = PersonalIdentity.get_by_code(identity.personal_identity_code)
-        person = %{}
+        {:registration, _} ->
+          {:login}
 
-        case {request.context, person} do
-          {:registration, nil} ->
-            "Success: Register user"
+        {:login, _} ->
+          {:login}
 
-          {:registration, _} ->
-            "Success: login"
+        {:login, nil} ->
+          {:error, "Employee not found"}
 
-          _ ->
-            "Should never happen"
-        end
-      else
-        {:error, "Nonce mismatch"}
+        {:reset_password, _} ->
+          {:reset_password}
+
+        {:reset_password, nil} ->
+          {:error, "Employee not found"}
+
+        _ ->
+          :error
       end
-    else
-      {:error, "Auth code request not found"}
     end
   end
 end

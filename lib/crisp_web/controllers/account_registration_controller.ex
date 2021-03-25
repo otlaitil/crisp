@@ -29,7 +29,7 @@ defmodule CrispWeb.AccountRegistrationController do
 
   # TODO: Check nonce, create a bunch of models
   def show(conn, %{state: state, code: authorization_code} = params) do
-    Accounts.get_authorization_code(state, authorization_code)
+    Accounts.get_identity(state, authorization_code)
 
     render(conn, "show.html")
   end
