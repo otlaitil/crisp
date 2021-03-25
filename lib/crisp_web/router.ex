@@ -20,7 +20,7 @@ defmodule CrispWeb.Router do
     get "/liity", AccountRegistrationController, :new
     # TODO(jouni): Not my favorite controller or method name
     post "/liity", AccountRegistrationController, :create
-    get "/redirecturi", AccountRegistrationController, :show
+    get "/tunnistautuminen", AccountRegistrationController, :show
   end
 
   # Other scopes may use custom stacks.

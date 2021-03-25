@@ -9,12 +9,28 @@ defmodule CrispWeb.AccountRegistrationController do
   end
 
   # TODO: Create nonce etc.
-  def create(conn, _params) do
-    redirect(conn, to: "/redirecturi")
+  def create(conn, %{"idp" => identity_provider} = params) do
+    # TODO: state and code wouldn't actually be in the request. They are
+    # there to fake the redirect from ISB to SP. The redirect url would
+    # actually be `_url` (not `_path`) and redirect should be to
+    # `external` (instead of `to:`).
+    redirect_url =
+      Accounts.initiate_identification(
+        identity_provider,
+        :registration,
+        &Routes.account_registration_path(conn, :show,
+          state: &1,
+          code: "authorization-code"
+        )
+      )
+
+    redirect(conn, to: redirect_url)
   end
 
   # TODO: Check nonce, create a bunch of models
-  def show(conn, _params) do
+  def show(conn, %{state: state, code: authorization_code} = params) do
+    Accounts.get_authorization_code(state, authorization_code)
+
     render(conn, "show.html")
   end
 end

@@ -1,5 +1,5 @@
 <h1>Tunnistaudu</h1>
 
 <%= for idp <- @identity_providers do %>
-  <%= link idp.name, to: Routes.account_registration_path(@conn, :create), method: :post %>
+  <%= link idp.name, to: Routes.account_registration_path(@conn, :create, idp: idp.id), method: :post %>
 <% end %>
