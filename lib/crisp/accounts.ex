@@ -1,9 +1,8 @@
 defmodule Crisp.Accounts do
   import Ecto.Query
   alias Crisp.Repo
-  alias Crisp.Accounts.Employee
+  alias Crisp.Accounts.{AuthorizationCodeRequest, Employee, PersonalIdentity}
   alias Crisp.IdentityServiceBroker
-  alias Crisp.Accounts.AuthorizationCodeRequest
 
   @doc """
   Lists identity providers.
@@ -33,26 +32,23 @@ defmodule Crisp.Accounts do
       {:ok, query} <- AuthorizationCodeRequest.get_by_state_query(state),
       %AuthorizationCodeRequest{} = request <- Repo.one(query),
       {:ok, identity} <- IdentityServiceBroker.get_identity(authorization_code, request.nonce),
-      :ok <- AuthorizationCodeRequest.verify_nonce(request, identity.nonce)
-      # employee = get_by_personal_identity_code(identity.personal_identity_code)
+      :ok <- AuthorizationCodeRequest.verify_nonce(request, identity.nonce),
+      employee = get_employee_by_personal_identity_code(identity.personal_identity_code)
     ) do
-      # TODO: Delete me
-      employee = nil
-
       case {request.context, employee} do
         {:registration, nil} ->
           {:registered}
 
-        {:registration, _} ->
+        {:registration, %Employee{}} ->
           {:login}
 
-        {:login, _} ->
+        {:login, %Employee{}} ->
           {:login}
 
         {:login, nil} ->
           {:error, "Employee not found"}
 
-        {:reset_password, _} ->
+        {:reset_password, %Employee{}} ->
           {:reset_password}
 
         {:reset_password, nil} ->
@@ -65,5 +61,14 @@ defmodule Crisp.Accounts do
       nil -> {:error, "AuthorizationCodeRequest expired or not found"}
       error -> error
     end
+  end
+
+  def get_employee_by_personal_identity_code(personal_identity_code) do
+    Repo.one(
+      from e in Employee,
+        join: p in PersonalIdentity,
+        on: p.employee_id == e.id,
+        where: p.code == ^personal_identity_code
+    )
   end
 end
