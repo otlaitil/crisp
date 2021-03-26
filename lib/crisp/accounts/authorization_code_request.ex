@@ -60,25 +60,6 @@ defmodule Crisp.Accounts.AuthorizationCodeRequest do
   end
 
   def verify_nonce(%__MODULE__{nonce: left}, right) do
-    # case Base.url_encode64(left, padding: false) do
-    #   {:ok, decoded_nonce} ->
-    #     hashed_nonce = :crypto.hash(@hash_algorithm, decoded_nonce)
-
-    #     IO.inspect(hashed_nonce, label: "Hashed token")
-
-    #     if Plug.Crypto.secure_compare(left, hashed_nonce) do
-    #       :ok
-    #     else
-    #       :mismatch
-    #     end
-
-    #   :error ->
-    #     :error
-    # end
-
-    IO.inspect(left, label: "verify_nonce, left")
-    IO.inspect(right, label: "verify_nonce, right")
-
     hashed_nonce = :crypto.hash(@hash_algorithm, left)
     encoded_nonce = Base.url_encode64(hashed_nonce, padding: false)
 
