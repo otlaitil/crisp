@@ -20,7 +20,29 @@ defmodule Crisp.Accounts.Employee do
   @doc false
   def changeset(employee, attrs) do
     employee
-    |> cast(attrs, [:firstname, :lastname, :phonenumber, :nationality, :address, :city, :zip, :iban, :business_description, :business_scope])
-    |> validate_required([:firstname, :lastname, :phonenumber, :nationality, :address, :city, :zip, :iban, :business_description, :business_scope])
+    |> cast(attrs, [
+      :firstname,
+      :lastname,
+      :phonenumber,
+      :nationality,
+      :address,
+      :city,
+      :zip,
+      :iban,
+      :business_description,
+      :business_scope
+    ])
+    |> validate_required([
+      :firstname,
+      :lastname,
+      :phonenumber,
+      :nationality,
+      :address,
+      :city,
+      :zip,
+      :iban,
+      :business_description,
+      :business_scope
+    ])
   end
 end
