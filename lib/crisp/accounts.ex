@@ -30,9 +30,10 @@ defmodule Crisp.Accounts do
   # TODO: Better error handling. If base64 decoding fails, `:error` is returned. Otherwise this might be fine?
   def get_identity(state, authorization_code) do
     with(
-      {:ok, query} <- AuthorizationCodeRequest.verify_query(state),
+      {:ok, query} <- AuthorizationCodeRequest.get_by_state_query(state),
       %AuthorizationCodeRequest{} = request <- Repo.one(query),
-      {:ok, identity} <- IdentityServiceBroker.get_identity(authorization_code, request.nonce)
+      {:ok, identity} <- IdentityServiceBroker.get_identity(authorization_code, request.nonce),
+      :ok <- AuthorizationCodeRequest.verify_nonce(request, identity.nonce)
       # employee = get_by_personal_identity_code(identity.personal_identity_code)
     ) do
       # TODO: Delete me

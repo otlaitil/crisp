@@ -43,7 +43,7 @@ defmodule Crisp.Accounts.AuthorizationCodeRequest do
     }
   end
 
-  def verify_query(state_token) do
+  def get_by_state_query(state_token) do
     case Base.url_decode64(state_token, padding: false) do
       {:ok, decoded_token} ->
         hashed_token = :crypto.hash(@hash_algorithm, decoded_token)
@@ -56,6 +56,36 @@ defmodule Crisp.Accounts.AuthorizationCodeRequest do
 
       :error ->
         :error
+    end
+  end
+
+  def verify_nonce(%__MODULE__{nonce: left}, right) do
+    # case Base.url_encode64(left, padding: false) do
+    #   {:ok, decoded_nonce} ->
+    #     hashed_nonce = :crypto.hash(@hash_algorithm, decoded_nonce)
+
+    #     IO.inspect(hashed_nonce, label: "Hashed token")
+
+    #     if Plug.Crypto.secure_compare(left, hashed_nonce) do
+    #       :ok
+    #     else
+    #       :mismatch
+    #     end
+
+    #   :error ->
+    #     :error
+    # end
+
+    IO.inspect(left, label: "verify_nonce, left")
+    IO.inspect(right, label: "verify_nonce, right")
+
+    hashed_nonce = :crypto.hash(@hash_algorithm, left)
+    encoded_nonce = Base.url_encode64(hashed_nonce, padding: false)
+
+    if Plug.Crypto.secure_compare(encoded_nonce, right) do
+      :ok
+    else
+      :mismatch
     end
   end
 end

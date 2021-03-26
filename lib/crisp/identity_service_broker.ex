@@ -17,19 +17,18 @@ defmodule Crisp.IdentityServiceBroker do
 
   # TODO: Compare nonce
   def get_identity(_authorization_code, nonce) do
-    identity = %Identity{
-      birthdate: ~D[1900-01-01],
-      given_name: "Matti Matias",
-      family_name: "von Möttönen",
-      name: "von Möttönen Matti Matias",
-      personal_identity_code: "010100-969P",
-      nonce: nonce
-    }
+    # TODO: This is here to fake that the nonce comes from the ISB
+    hashed_nonce = :crypto.hash(:sha256, nonce)
+    encoded_nonce = Base.url_encode64(hashed_nonce, padding: false)
 
-    if identity.nonce == nonce do
-      {:ok, identity}
-    else
-      {:error, "Nonce mismatch"}
-    end
+    {:ok,
+     %Identity{
+       birthdate: ~D[1900-01-01],
+       given_name: "Matti Matias",
+       family_name: "von Möttönen",
+       name: "von Möttönen Matti Matias",
+       personal_identity_code: "010100-969P",
+       nonce: encoded_nonce
+     }}
   end
 end
