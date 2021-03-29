@@ -44,6 +44,7 @@ defmodule Crisp.MixProject do
       {:gettext, "~> 0.11"},
       {:httpoison, "~> 1.8"},
       {:jason, "~> 1.0"},
+      {:joken, "~> 2.3"},
       {:phoenix, "~> 1.5.7"},
       {:phoenix_ecto, "~> 4.1"},
       {:phoenix_html, "~> 2.11"},

@@ -5,14 +5,20 @@ defmodule Crisp.IdentityServiceBroker do
 
   alias Crisp.IdentityServiceBroker.{IdentityProvider, Identity}
 
+  @base_url "https://isb-test.op.fi"
+  @client_id "saippuakauppias"
+
+  # TODO: Map response to IdentityProviders
   def list_identity_providers() do
-    [
-      %IdentityProvider{
-        id: "fi-op",
-        name: "OP",
-        image_url: "http://localhost:4000/images/phoenix.png"
-      }
-    ]
+    url = @base_url <> "/api/embedded-ui/" <> @client_id
+
+    case HTTPoison.get(url) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        {:ok, Jason.decode!(body)}
+
+      _ ->
+        :error
+    end
   end
 
   # TODO: Compare nonce

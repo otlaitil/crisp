@@ -4,7 +4,7 @@ defmodule CrispWeb.AccountRegistrationController do
   alias Crisp.Accounts
 
   def new(conn, _params) do
-    identity_providers = Accounts.list_identity_providers()
+    {:ok, identity_providers} = Accounts.list_identity_providers()
     render(conn, "new.html", identity_providers: identity_providers)
   end
 
@@ -14,17 +14,9 @@ defmodule CrispWeb.AccountRegistrationController do
     # there to fake the redirect from ISB to SP. The redirect url would
     # actually be `_url` (not `_path`) and redirect should be to
     # `external` (instead of `to:`).
-    redirect_url =
-      Accounts.initiate_identification(
-        identity_provider,
-        :registration,
-        &Routes.account_registration_path(conn, :show,
-          state: &1,
-          code: "authorization-code"
-        )
-      )
+    redirect_url = Accounts.initiate_identification(identity_provider, :registration)
 
-    redirect(conn, to: redirect_url)
+    redirect(conn, external: redirect_url)
   end
 
   def show(conn, %{"state" => state, "code" => authorization_code} = params) do

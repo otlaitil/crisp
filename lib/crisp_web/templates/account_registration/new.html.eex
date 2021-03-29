@@ -1,5 +1,10 @@
 <h1>Tunnistaudu</h1>
 
-<%= for idp <- @identity_providers do %>
-  <%= link idp.name, to: Routes.account_registration_path(@conn, :create, idp: idp.id), method: :post %>
+<ul>
+<%= for idp <- @identity_providers["identityProviders"] do %>
+  <li>
+    <%= img_tag(idp["imageUrl"], style: "max-width: 150px") %>
+    <%= link(idp["name"], to: Routes.account_registration_path(@conn, :create, idp: idp["ftn_idp_id"]), method: :post) %>
+  </li>
 <% end %>
+</ul>
