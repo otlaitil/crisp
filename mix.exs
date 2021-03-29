@@ -42,6 +42,7 @@ defmodule Crisp.MixProject do
     [
       {:ecto_sql, "~> 3.4"},
       {:gettext, "~> 0.11"},
+      {:httpoison, "~> 1.8"},
       {:jason, "~> 1.0"},
       {:phoenix, "~> 1.5.7"},
       {:phoenix_ecto, "~> 4.1"},
