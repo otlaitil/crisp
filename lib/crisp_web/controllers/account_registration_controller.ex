@@ -27,9 +27,13 @@ defmodule CrispWeb.AccountRegistrationController do
     redirect(conn, to: redirect_url)
   end
 
-  def show(conn, %{state: state, code: authorization_code} = params) do
-    Accounts.get_identity(state, authorization_code)
-
-    render(conn, "show.html")
+  def show(conn, %{"state" => state, "code" => authorization_code} = params) do
+    case Accounts.get_identity(state, authorization_code) do
+      {:registered} -> render(conn, "registered.html")
+      {:login} -> render(conn, "login.html")
+      {:reset_password} -> render(conn, "reset_password.html")
+      {:error, error_message} -> render(conn, "error.html", message: error_message)
+      _ -> render(conn, "error.html", message: "General error")
+    end
   end
 end

@@ -1,0 +1,2 @@
+<h1>Virhe!</h1>
+<p><%= @message %></p>
