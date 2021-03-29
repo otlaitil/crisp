@@ -27,7 +27,6 @@ defmodule CrispWeb.AccountRegistrationController do
     redirect(conn, to: redirect_url)
   end
 
-  # TODO: Check nonce, create a bunch of models
   def show(conn, %{state: state, code: authorization_code} = params) do
     Accounts.get_identity(state, authorization_code)
 
