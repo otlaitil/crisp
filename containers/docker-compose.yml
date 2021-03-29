@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: postgres
   db-console:
     image: postgres:13.1-alpine
-    command: psql -h db -U postgres
+    command: psql -h db -U postgres crisp_dev
     depends_on:
       - db
     environment:
