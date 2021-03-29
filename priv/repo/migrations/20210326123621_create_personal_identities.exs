@@ -9,6 +9,6 @@ defmodule Crisp.Repo.Migrations.CreatePersonalIdentities do
       timestamps()
     end
 
-    create index(:personal_identities, [:employee_id])
+    create unique_index(:personal_identities, [:employee_id])
   end
 end
