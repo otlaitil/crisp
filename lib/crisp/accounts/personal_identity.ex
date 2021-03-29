@@ -4,7 +4,7 @@ defmodule Crisp.Accounts.PersonalIdentity do
 
   schema "personal_identities" do
     field :code, :string
-    field :employee_id, :id
+    belongs_to :employee, Employee
 
     timestamps()
   end

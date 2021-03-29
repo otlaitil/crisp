@@ -37,6 +37,20 @@ defmodule Crisp.Accounts do
     ) do
       case {request.context, employee} do
         {:registration, nil} ->
+          Ecto.Multi.new()
+          |> Ecto.Multi.insert(:employee, %Employee{})
+          |> Ecto.Multi.insert(:personal_identity, fn %{
+                                                        employee: employee
+                                                      } ->
+            code = identity.personal_identity_code
+            Ecto.build_assoc(employee, :personal_identity, code: code)
+          end)
+          |> Ecto.Multi.delete_all(
+            :tokens,
+            from(r in AuthorizationCodeRequest, where: r.state == ^request.state)
+          )
+          |> Repo.transaction()
+
           {:registered}
 
         {:registration, %Employee{}} ->

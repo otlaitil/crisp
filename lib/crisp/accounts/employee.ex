@@ -2,6 +2,8 @@ defmodule Crisp.Accounts.Employee do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Crisp.Accounts.PersonalIdentity
+
   schema "employees" do
     field :address, :string
     field :business_description, :string
@@ -13,6 +15,7 @@ defmodule Crisp.Accounts.Employee do
     field :nationality, :string
     field :phonenumber, :string
     field :zip, :string
+    has_one(:personal_identity, PersonalIdentity)
 
     timestamps()
   end
