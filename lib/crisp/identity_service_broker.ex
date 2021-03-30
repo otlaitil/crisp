@@ -22,7 +22,7 @@ defmodule Crisp.IdentityServiceBroker do
   end
 
   # TODO: Compare nonce
-  def get_identity(authorization_code, nonce) do
+  def get_identity(authorization_code) do
     url = @base_url <> "/oauth/token"
 
     headers = [
@@ -67,33 +67,25 @@ defmodule Crisp.IdentityServiceBroker do
         jwk = jwks_response["keys"] |> hd |> JOSE.JWK.from()
 
         # Verify
-        {true, %JOSE.JWT{fields: claims}} =
+        # TODO: Try to use Joken.verify_and_validate() here instead of this!
+        {true, %JOSE.JWT{fields: claims}, _jws} =
           JOSE.JWT.verify_strict(jwk, ["RS256"], decrypted_token)
 
         # TODO: Should validate
 
-        result =
-          Crisp.IdentityServiceBroker.Token.verify_and_validate(decoded_body["id_token"], signer)
-
-        IEx.pry()
+        {:ok,
+         %Identity{
+           birthdate: ~D[1900-01-01],
+           given_name: "Matti Matias",
+           family_name: "von Möttönen",
+           name: "von Möttönen Matti Matias",
+           personal_identity_code: claims["personal_identity_code"],
+           nonce: claims["nonce"]
+         }}
 
       _ ->
         :error
     end
-
-    # TODO: This is here to fake that the nonce comes from the ISB
-    hashed_nonce = :crypto.hash(:sha256, nonce)
-    encoded_nonce = Base.url_encode64(hashed_nonce, padding: false)
-
-    {:ok,
-     %Identity{
-       birthdate: ~D[1900-01-01],
-       given_name: "Matti Matias",
-       family_name: "von Möttönen",
-       name: "von Möttönen Matti Matias",
-       personal_identity_code: "010100-969P",
-       nonce: encoded_nonce
-     }}
   end
 
   def decrypt_pem() do

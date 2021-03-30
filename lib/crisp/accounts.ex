@@ -78,7 +78,7 @@ defmodule Crisp.Accounts do
     with(
       {:ok, query} <- AuthorizationCodeRequest.get_by_state_query(state),
       %AuthorizationCodeRequest{} = request <- Repo.one(query),
-      {:ok, identity} <- IdentityServiceBroker.get_identity(authorization_code, request.nonce),
+      {:ok, identity} <- IdentityServiceBroker.get_identity(authorization_code),
       :ok <- AuthorizationCodeRequest.verify_nonce(request, identity.nonce),
       employee = get_employee_by_personal_identity_code(identity.personal_identity_code)
     ) do
@@ -106,8 +106,12 @@ defmodule Crisp.Accounts do
           :error
       end
     else
-      nil -> {:error, "AuthorizationCodeRequest expired or not found"}
-      error -> error
+      nil ->
+        {:error, "AuthorizationCodeRequest expired or not found"}
+
+      error ->
+        IO.inspect(error, label: "Accounts.get_identity")
+        error
     end
   end
 
