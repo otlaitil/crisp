@@ -22,7 +22,40 @@ defmodule Crisp.IdentityServiceBroker do
   end
 
   # TODO: Compare nonce
-  def get_identity(_authorization_code, nonce) do
+  def get_identity(authorization_code, nonce) do
+    url = @base_url <> "/oauth/token"
+
+    headers = [
+      {"Content-Type", "application/x-www-form-urlencoded"},
+      {"Accept", "application/json"}
+    ]
+
+    signer = Joken.Signer.create("RS256", %{"pem" => Crisp.Accounts.pem()})
+
+    claims = %{
+      "sub" => "saippuakauppias",
+      "aud" => "https://isb-test.op.fi/oauth/token"
+    }
+
+    {:ok, token, _claims} = Crisp.IdentityServiceBroker.Token.generate_and_sign(claims, signer)
+
+    body =
+      {:form,
+       [
+         {"code", authorization_code},
+         {"grant_type", "authorization_code"},
+         {"client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"},
+         {"client_assertion", token}
+       ]}
+
+    case HTTPoison.post(url, body, headers) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        {:ok, Jason.decode!(body)}
+
+      _ ->
+        :error
+    end
+
     # TODO: This is here to fake that the nonce comes from the ISB
     hashed_nonce = :crypto.hash(:sha256, nonce)
     encoded_nonce = Base.url_encode64(hashed_nonce, padding: false)
