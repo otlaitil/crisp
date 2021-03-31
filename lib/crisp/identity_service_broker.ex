@@ -7,6 +7,7 @@ defmodule Crisp.IdentityServiceBroker do
 
   @base_url "https://isb-test.op.fi"
   @client_id "saippuakauppias"
+  @expiration_time 10 * 60
 
   # TODO: Map response to IdentityProviders
   def list_identity_providers() do
@@ -34,8 +35,8 @@ defmodule Crisp.IdentityServiceBroker do
       "iss" => @client_id,
       "sub" => @client_id,
       "aud" => "https://isb-test.op.fi/oauth/token",
-      "jti" => Joken.generate_jti(),
-      "exp" => Joken.current_time() + 10 * 60
+      "jti" => generate_jti(),
+      "exp" => current_time() + @expiration_time
     }
 
     IO.inspect(claims, label: "Generated claims")
@@ -125,5 +126,22 @@ defmodule Crisp.IdentityServiceBroker do
     /6a/W8zWAlpCfNJBBpwdloX7jfGNKmjwo82gFEbvwP4B5WujraxwMA==
     -----END RSA PRIVATE KEY-----
     """
+  end
+
+  def current_time(), do: DateTime.utc_now() |> DateTime.to_unix()
+
+  @doc """
+  Default function for generating `jti` claims. This was inspired by the `Plug.RequestId` generation.
+  It avoids using `strong_rand_bytes` as it is known to have some contention when running with many
+  schedulers.
+  """
+  def generate_jti() do
+    binary = <<
+      System.system_time(:nanosecond)::64,
+      :erlang.phash2({node(), self()}, 16_777_216)::24,
+      :erlang.unique_integer()::32
+    >>
+
+    Base.hex_encode32(binary, case: :lower)
   end
 end

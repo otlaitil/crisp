@@ -61,7 +61,7 @@ defmodule Crisp.Accounts do
       |> :calendar.datetime_to_gregorian_seconds()
       |> Kernel.-(@epoch)
 
-    current_time = Joken.current_time()
+    current_time = Crisp.IdentityServiceBroker.current_time()
 
     claims = %{
       "client_id" => "saippuakauppias",
@@ -73,7 +73,7 @@ defmodule Crisp.Accounts do
       "ftn_idp_id" => idp,
       "exp" => expired_at_timestamp,
       "nonce" => nonce,
-      "jti" => Joken.generate_jti(),
+      "jti" => Crisp.IdentityServiceBroker.generate_jti(),
       "iss" => "saippuakauppias",
       "iat" => current_time,
       "nbf" => current_time
