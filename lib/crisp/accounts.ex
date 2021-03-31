@@ -48,18 +48,38 @@ defmodule Crisp.Accounts do
     """
   end
 
+  epoch = {{1970, 1, 1}, {0, 0, 0}}
+  @epoch :calendar.datetime_to_gregorian_seconds(epoch)
+
   def initiate_identification(idp, context) do
     {state, nonce, request} = AuthorizationCodeRequest.build(idp)
     Crisp.Repo.insert(request)
 
+    expired_at_timestamp =
+      request.expired_at
+      |> NaiveDateTime.to_erl()
+      |> :calendar.datetime_to_gregorian_seconds()
+      |> Kernel.-(@epoch)
+
+    current_time = Joken.current_time()
+
     claims = %{
+      "client_id" => "saippuakauppias",
       "redirect_uri" => "http://localhost:4000/tunnistautuminen",
       "response_type" => "code",
       "scope" => "openid personal_identity_code profile",
-      "nonce" => nonce,
+      "ui_locales" => "en",
       "state" => state,
-      "ftn_idp_id" => idp
+      "ftn_idp_id" => idp,
+      "exp" => expired_at_timestamp,
+      "nonce" => nonce,
+      "jti" => Joken.generate_jti(),
+      "iss" => "saippuakauppias",
+      "iat" => current_time,
+      "nbf" => current_time
     }
+
+    IO.inspect(claims, label: "Generated claims")
 
     signer = Joken.Signer.create("RS256", %{"pem" => pem()})
 
