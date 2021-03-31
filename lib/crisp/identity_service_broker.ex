@@ -33,9 +33,14 @@ defmodule Crisp.IdentityServiceBroker do
     signer = Joken.Signer.create("RS256", %{"pem" => Crisp.Accounts.pem()})
 
     claims = %{
+      "iss" => "saippuakauppias",
       "sub" => "saippuakauppias",
-      "aud" => "https://isb-test.op.fi/oauth/token"
+      "aud" => "https://isb-test.op.fi/oauth/token",
+      "jti" => Joken.generate_jti(),
+      "exp" => Joken.current_time() + 10 * 60
     }
+
+    IO.inspect(claims, label: "Generated claims")
 
     {:ok, token, _claims} = Crisp.IdentityServiceBroker.Token.generate_and_sign(claims, signer)
 
