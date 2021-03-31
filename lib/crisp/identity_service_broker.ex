@@ -30,8 +30,6 @@ defmodule Crisp.IdentityServiceBroker do
       {"Accept", "application/json"}
     ]
 
-    signer = Joken.Signer.create("RS256", %{"pem" => Crisp.Accounts.pem()})
-
     claims = %{
       "iss" => "saippuakauppias",
       "sub" => "saippuakauppias",
@@ -42,7 +40,10 @@ defmodule Crisp.IdentityServiceBroker do
 
     IO.inspect(claims, label: "Generated claims")
 
-    {:ok, token, _claims} = Crisp.IdentityServiceBroker.Token.generate_and_sign(claims, signer)
+    jwk = JOSE.JWK.from_pem(Crisp.Accounts.pem())
+    jws = JOSE.JWS.from_map(%{"alg" => "RS256", "typ" => "JWT"})
+    result = JOSE.JWT.sign(jwk, jws, claims)
+    {_, token} = JOSE.JWS.compact(result)
 
     body =
       {:form,
@@ -53,28 +54,26 @@ defmodule Crisp.IdentityServiceBroker do
          {"client_assertion", token}
        ]}
 
-    require IEx
-
     case HTTPoison.post(url, body, headers) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        signer = Joken.Signer.create("RS256", %{"pem" => decrypt_pem()})
         decoded_body = Jason.decode!(body)
         id_token = decoded_body["id_token"]
 
-        {decrypted_token, _jwe} = JOSE.JWE.block_decrypt(signer.jwk, id_token)
-        Joken.expand(decrypted_token)
+        jwk = JOSE.JWK.from_pem(decrypt_pem())
+        {decrypted_token, _jwe} = JOSE.JWE.block_decrypt(jwk, id_token)
 
         # JWKS
         {:ok, %HTTPoison.Response{status_code: 200, body: body}} =
           HTTPoison.get("https://isb-test.op.fi/jwks/broker")
 
         jwks_response = Jason.decode!(body)
-        jwk = jwks_response["keys"] |> hd |> JOSE.JWK.from()
+        jwk_from_jwks = jwks_response["keys"] |> hd |> JOSE.JWK.from()
 
         # Verify
-        # TODO: Try to use Joken.verify_and_validate() here instead of this!
         {true, %JOSE.JWT{fields: claims}, _jws} =
-          JOSE.JWT.verify_strict(jwk, ["RS256"], decrypted_token)
+          JOSE.JWT.verify_strict(jwk_from_jwks, ["RS256"], decrypted_token)
+
+        IO.inspect(claims, label: "Identity token claims")
 
         # TODO: Should validate
 
