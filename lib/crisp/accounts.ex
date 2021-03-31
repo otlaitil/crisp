@@ -81,9 +81,10 @@ defmodule Crisp.Accounts do
 
     IO.inspect(claims, label: "Generated claims")
 
-    signer = Joken.Signer.create("RS256", %{"pem" => pem()})
-
-    {:ok, token, _claims} = Crisp.IdentityServiceBroker.Token.generate_and_sign(claims, signer)
+    jwk = JOSE.JWK.from_pem(pem)
+    jws = JOSE.JWS.from_map(%{"alg" => "RS256", "typ" => "JWT"})
+    result = JOSE.JWT.sign(jwk, jws, claims)
+    {_, token} = JOSE.JWS.compact(result)
 
     "https://isb-test.op.fi/oauth/authorize"
     |> URI.parse()
