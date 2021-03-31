@@ -31,8 +31,8 @@ defmodule Crisp.IdentityServiceBroker do
     ]
 
     claims = %{
-      "iss" => "saippuakauppias",
-      "sub" => "saippuakauppias",
+      "iss" => @client_id,
+      "sub" => @client_id,
       "aud" => "https://isb-test.op.fi/oauth/token",
       "jti" => Joken.generate_jti(),
       "exp" => Joken.current_time() + 10 * 60
@@ -66,8 +66,11 @@ defmodule Crisp.IdentityServiceBroker do
         {:ok, %HTTPoison.Response{status_code: 200, body: body}} =
           HTTPoison.get("https://isb-test.op.fi/jwks/broker")
 
-        jwks_response = Jason.decode!(body)
-        jwk_from_jwks = jwks_response["keys"] |> hd |> JOSE.JWK.from()
+        jwk_from_jwks =
+          Jason.decode!(body)
+          |> Map.get("keys")
+          |> List.first()
+          |> JOSE.JWK.from()
 
         # Verify
         {true, %JOSE.JWT{fields: claims}, _jws} =
@@ -79,10 +82,10 @@ defmodule Crisp.IdentityServiceBroker do
 
         {:ok,
          %Identity{
-           birthdate: ~D[1900-01-01],
-           given_name: "Matti Matias",
-           family_name: "von Möttönen",
-           name: "von Möttönen Matti Matias",
+           birthdate: claims["birthdate"],
+           given_name: claims["given_name"],
+           family_name: claims["family_name"],
+           name: claims["name"],
            personal_identity_code: claims["personal_identity_code"],
            nonce: claims["nonce"]
          }}
@@ -122,9 +125,5 @@ defmodule Crisp.IdentityServiceBroker do
     /6a/W8zWAlpCfNJBBpwdloX7jfGNKmjwo82gFEbvwP4B5WujraxwMA==
     -----END RSA PRIVATE KEY-----
     """
-  end
-
-  def handle_identity_token() do
-    signer = Joken.Signer.create("RS256", %{"pem" => decrypt_pem()})
   end
 end
