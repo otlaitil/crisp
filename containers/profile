@@ -3,25 +3,35 @@
 
 PS1="\[\e[37m\][\[\e[m\]\[\e[32m\]dev\[\e[m\]\[\e[37m\]]\[\e[m\] \W \\$ "
 
-cat <<- HEREDOC
+motd() {
+	cat <<- HEREDOC
 
-Welcome to Crisp!
+	Welcome to Crisp!
 
-These are common commands used during development:
+	These are common commands used during development:
 
-   mix test
-   mix test --cover
-   mix test test/some/particular/dir
-   mix test test/some/particular/file_test.exs
-   mix test test/some/particular/file_test.exs:12
+	testing
+	   mix test
+	   mix test --cover
+	   mix test test/some/particular/dir
+	   mix test test/some/particular/file_test.exs
+	   mix test test/some/particular/file_test.exs:12
 
-   mix format
+	maintaining code hygiene
+	   mix format
+	   mix lint
+	   mix lint explain Credo.Check.Refactor.Nesting
 
-   mix lint
-   mix lint explain Credo.Check.Refactor.Nesting
+	install and delete dependencies
+	   mix do deps.get, deps.compile   # To install new dependencies
+	   mix deps.unlock --unused        # To remove dependencies
 
-   mix docs       # Generate documentation
-   mix security   # Security-focused static analysis
-   mix tc         # Type check with dialyzer
+	other
+	   mix docs       # Generate documentation
+	   mix security   # Security-focused static analysis
+	   mix tc         # Type check with dialyzer
 
-HEREDOC
+	HEREDOC
+}
+
+motd
