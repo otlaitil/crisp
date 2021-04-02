@@ -7,12 +7,18 @@ WORKDIR /app
 #
 # Dependency     Required by
 # -----------------------------------------
+# gcc            argon2_elixir
 # inotify-tools  phoenix: live reloading
+# make           argon2_elixir
+# musl-dev       argon2_elixir
 # npm            phoenix: asset compilation
 # tzdata         set timezone
 #
 RUN apk add --no-cache \
+ gcc \
  inotify-tools \
+ make \
+ musl-dev \
  npm \
  tzdata
 
