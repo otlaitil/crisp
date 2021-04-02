@@ -41,9 +41,9 @@ defmodule Crisp.Accounts.Password do
 
   defp maybe_hash_password(changeset, opts) do
     hash_password? = Keyword.get(opts, :hash_password, true)
-    password = get_change(changeset, :plaintext)
+    plaintext = get_change(changeset, :plaintext)
 
-    if hash_password? && password && changeset.valid? do
+    if hash_password? && plaintext && changeset.valid? do
       changeset
       |> put_change(:hashed_password, Argon2.hash_pwd_salt(plaintext))
       |> delete_change(:plaintext)
