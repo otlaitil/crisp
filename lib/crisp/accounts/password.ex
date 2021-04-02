@@ -45,7 +45,7 @@ defmodule Crisp.Accounts.Password do
 
     if hash_password? && plaintext && changeset.valid? do
       changeset
-      |> put_change(:hashed_password, Argon2.hash_pwd_salt(plaintext))
+      |> put_change(:hash, Argon2.hash_pwd_salt(plaintext))
       |> delete_change(:plaintext)
     else
       changeset

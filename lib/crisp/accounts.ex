@@ -1,7 +1,7 @@
 defmodule Crisp.Accounts do
   import Ecto.Query
   alias Crisp.Repo
-  alias Crisp.Accounts.{AuthorizationCodeRequest, Employee, PersonalIdentity}
+  alias Crisp.Accounts.{AuthorizationCodeRequest, Email, Employee, Password, PersonalIdentity}
   alias Crisp.IdentityServiceBroker
 
   @doc """
@@ -158,5 +158,16 @@ defmodule Crisp.Accounts do
       :tokens,
       from(r in AuthorizationCodeRequest, where: r.state == ^request.state)
     )
+  end
+
+  def register_email_and_password(employee, email, password) do
+    {token, email_changeset} = Email.build(employee, email)
+
+    Ecto.Multi.new()
+    |> Ecto.Multi.insert(:email, email_changeset)
+    |> Ecto.Multi.insert(:password, fn %{email: email} ->
+      Ecto.build_assoc(email, :password)
+      |> Password.changeset(%{plaintext: password})
+    end)
   end
 end

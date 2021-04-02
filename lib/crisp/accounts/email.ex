@@ -10,19 +10,20 @@ defmodule Crisp.Accounts.Email do
     field :verification_token, :binary
     field :verified_at, :naive_datetime
     belongs_to :employee, Crisp.Accounts.Employee
+    has_one :password, Crisp.Accounts.Password
 
     timestamps()
   end
 
   @doc false
-  def build(employee, params) do
+  def build(employee, email_address) do
     verification_token = :crypto.strong_rand_bytes(@rand_size)
     hashed_token = :crypto.hash(@hash_algorithm, verification_token)
 
     changeset =
       Ecto.build_assoc(employee, :email)
       |> Map.put(:verification_token, hashed_token)
-      |> cast(params, [:address])
+      |> change(address: email_address)
       |> validate_email()
 
     {Base.url_encode64(verification_token, padding: false), changeset}
