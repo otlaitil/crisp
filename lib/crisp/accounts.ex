@@ -1,7 +1,16 @@
 defmodule Crisp.Accounts do
   import Ecto.Query
   alias Crisp.Repo
-  alias Crisp.Accounts.{AuthorizationCodeRequest, Email, Employee, Password, PersonalIdentity}
+
+  alias Crisp.Accounts.{
+    AuthorizationCodeRequest,
+    Email,
+    Employee,
+    Password,
+    PersonalIdentity,
+    Registration
+  }
+
   alias Crisp.IdentityServiceBroker
 
   @doc """
@@ -160,7 +169,11 @@ defmodule Crisp.Accounts do
     )
   end
 
-  def register_email_and_password(employee, params) do
-    Crisp.Accounts.Registration.commit(employee, params)
+  def change_email_and_password(attrs \\ %{}) do
+    Registration.changeset(%Registration{}, attrs)
+  end
+
+  def register_email_and_password(employee, attrs) do
+    Registration.commit(employee, attrs)
   end
 end

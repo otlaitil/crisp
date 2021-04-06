@@ -37,8 +37,8 @@ defmodule Crisp.Accounts.Registration do
     changeset = changeset(%__MODULE__{}, params)
 
     case Repo.transaction(to_multi(employee, params)) do
-      {:ok, _} ->
-        :ok
+      {:ok, %{email: email}} ->
+        {:ok, email}
 
       {:error, operation, multi_changeset, _changes} ->
         map_errors(operation, multi_changeset, changeset)
