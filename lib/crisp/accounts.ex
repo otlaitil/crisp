@@ -170,10 +170,24 @@ defmodule Crisp.Accounts do
   end
 
   def change_email_and_password(attrs \\ %{}) do
-    Registration.changeset(%Registration{}, attrs)
+    Registration.changeset(attrs)
   end
 
   def register_email_and_password(employee, attrs) do
-    Registration.commit(employee, attrs)
+    changeset = Registration.changeset(attrs)
+
+    with {:ok, registration} <- Ecto.Changeset.apply_action(changeset, :insert),
+         multi <- Registration.multi(employee, registration),
+         {:ok, %{email: email}} <- Repo.transaction(multi) do
+      {:ok, email}
+    else
+      # apply_action
+      {:error, changeset} ->
+        {:error, changeset}
+
+      # transaction
+      {:error, operation, multi_changeset, _} ->
+        {:error, Registration.map_errors(operation, multi_changeset, changeset)}
+    end
   end
 end

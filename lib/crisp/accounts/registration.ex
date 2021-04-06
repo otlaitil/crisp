@@ -16,40 +16,30 @@ defmodule Crisp.Accounts.Registration do
     field(:password, :string)
   end
 
-  def changeset(struct, params \\ %{}) do
-    struct
+  def changeset(params \\ %{}) do
+    %__MODULE__{}
     |> cast(params, @required_fields)
     |> validate_required(@required_fields)
   end
 
-  def to_multi(%Employee{} = employee, params \\ %{}) do
-    {_token, email_changeset} = Email.build(employee, params["email"])
+  def multi(%Employee{} = employee, %__MODULE__{} = registration) do
+    {_token, email_changeset} = Email.build(employee, registration.email)
 
     Ecto.Multi.new()
     |> Ecto.Multi.insert(:email, email_changeset)
     |> Ecto.Multi.insert(:password, fn %{email: email} ->
       Ecto.build_assoc(email, :password)
-      |> Password.changeset(%{plaintext: params["password"]})
+      |> Password.changeset(%{plaintext: registration.password})
     end)
   end
 
-  def commit(%Employee{} = employee, params \\ %{}) do
-    changeset = changeset(%__MODULE__{}, params)
+  def map_errors(operation, from, to) do
+    changeset =
+      Enum.reduce(from.errors, to, fn {src_field, {msg, additional}}, acc ->
+        dest_field = Map.fetch!(@error_map, {operation, src_field})
+        Ecto.Changeset.add_error(acc, dest_field, msg, additional: additional)
+      end)
 
-    case Repo.transaction(to_multi(employee, params)) do
-      {:ok, %{email: email}} ->
-        {:ok, email}
-
-      {:error, operation, multi_changeset, _changes} ->
-        map_errors(operation, multi_changeset, changeset)
-        |> Ecto.Changeset.apply_action(:insert)
-    end
-  end
-
-  defp map_errors(operation, from, to) do
-    Enum.reduce(from.errors, to, fn {src_field, {msg, additional}}, acc ->
-      dest_field = Map.fetch!(@error_map, {operation, src_field})
-      Ecto.Changeset.add_error(acc, dest_field, msg, additional: additional)
-    end)
+    %{changeset | action: :insert}
   end
 end
