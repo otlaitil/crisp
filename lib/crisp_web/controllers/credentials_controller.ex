@@ -11,7 +11,11 @@ defmodule CrispWeb.CredentialsController do
     # TODO:
     employee = Crisp.Repo.get(Crisp.Accounts.Employee, 1)
 
-    case(Accounts.register_email_and_password(employee, params)) do
+    case Accounts.register_email_and_password(
+           employee,
+           params,
+           &Routes.email_confirmation_url(conn, :confirm, &1)
+         ) do
       {:ok, email} ->
         conn
         |> put_flash(:info, "Email sent to #{email.address}")

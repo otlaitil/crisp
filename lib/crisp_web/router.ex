@@ -24,6 +24,8 @@ defmodule CrispWeb.Router do
 
     get "/tunnukset", CredentialsController, :new
     post "/tunnukset", CredentialsController, :create
+
+    get "/vahvistus/:token", EmailConfirmationController, :confirm
   end
 
   # Other scopes may use custom stacks.

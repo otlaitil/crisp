@@ -1,9 +1,11 @@
 defmodule Crisp.Accounts.Email do
   use Ecto.Schema
   import Ecto.Changeset
+  import Ecto.Query
 
   @hash_algorithm :sha256
   @rand_size 64
+  @token_validity_in_days 7
 
   schema "emails" do
     field :address, :string
@@ -38,5 +40,33 @@ defmodule Crisp.Accounts.Email do
     |> validate_length(:address, max: 160)
     |> unsafe_validate_unique(:address, Crisp.Repo)
     |> unique_constraint(:address)
+  end
+
+  @doc """
+  Checks if the token is valid and returns its underlying lookup query.
+  The query returns the account found by the token.
+  """
+  def verify_email_query(token) do
+    case Base.url_decode64(token, padding: false) do
+      {:ok, decoded_token} ->
+        hashed_token = :crypto.hash(@hash_algorithm, decoded_token)
+
+        query =
+          from email in __MODULE__,
+            where: email.verification_token == ^hashed_token and is_nil(email.verified_at)
+
+        {:ok, query}
+
+      :error ->
+        :error
+    end
+  end
+
+  @doc """
+  Confirms the account by setting `confirmed_at`.
+  """
+  def confirm_changeset(email) do
+    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+    change(email, verified_at: now)
   end
 end

@@ -173,11 +173,12 @@ defmodule Crisp.Accounts do
     Registration.changeset(attrs)
   end
 
-  def register_email_and_password(employee, attrs) do
+  def register_email_and_password(employee, attrs, confirmation_url_fun)
+      when is_function(confirmation_url_fun, 1) do
     changeset = Registration.changeset(attrs)
 
     with {:ok, registration} <- Ecto.Changeset.apply_action(changeset, :insert),
-         multi <- Registration.multi(employee, registration),
+         multi <- Registration.multi(employee, registration, confirmation_url_fun),
          {:ok, %{email: email}} <- Repo.transaction(multi) do
       {:ok, email}
     else
@@ -188,6 +189,21 @@ defmodule Crisp.Accounts do
       # transaction
       {:error, operation, multi_changeset, _} ->
         {:error, Registration.map_errors(operation, multi_changeset, changeset)}
+    end
+  end
+
+  @doc """
+  Confirms a account by the given token.
+  If the token matches, the account account is marked as confirmed
+  and the token is deleted.
+  """
+  def confirm_account(token) do
+    with {:ok, query} <- Email.verify_email_query(token),
+         %Email{} = email <- Repo.one(query),
+         {:ok, email} <- Repo.update(Email.confirm_changeset(email)) do
+      {:ok, email}
+    else
+      _ -> :error
     end
   end
 end
