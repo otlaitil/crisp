@@ -22,30 +22,27 @@ defmodule Crisp.Accounts.Registration do
     |> validate_required(@required_fields)
   end
 
-  def to_multi(params \\ %{}) do
-    employee = Repo.get(Employee, 1)
-    {_token, email_changeset} = Email.build(employee, params.email)
+  def to_multi(%Employee{} = employee, params \\ %{}) do
+    {_token, email_changeset} = Email.build(employee, params["email"])
 
     Ecto.Multi.new()
     |> Ecto.Multi.insert(:email, email_changeset)
     |> Ecto.Multi.insert(:password, fn %{email: email} ->
       Ecto.build_assoc(email, :password)
-      |> Password.changeset(%{plaintext: params.password})
+      |> Password.changeset(%{plaintext: params["password"]})
     end)
   end
 
-  def commit(params \\ %{}) do
+  def commit(%Employee{} = employee, params \\ %{}) do
     changeset = changeset(%__MODULE__{}, params)
 
-    case Repo.transaction(to_multi(params)) do
+    case Repo.transaction(to_multi(employee, params)) do
       {:ok, _} ->
         :ok
 
       {:error, operation, multi_changeset, _changes} ->
-        IO.inspect(operation, label: "operation")
-        IO.inspect(multi_changeset)
-        changeset = map_errors(operation, multi_changeset, changeset)
-        {:error, changeset}
+        map_errors(operation, multi_changeset, changeset)
+        |> Ecto.Changeset.apply_action(:insert)
     end
   end
 

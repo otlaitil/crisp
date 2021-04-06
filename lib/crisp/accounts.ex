@@ -160,14 +160,7 @@ defmodule Crisp.Accounts do
     )
   end
 
-  def register_email_and_password(employee, email, password) do
-    {token, email_changeset} = Email.build(employee, email)
-
-    Ecto.Multi.new()
-    |> Ecto.Multi.insert(:email, email_changeset)
-    |> Ecto.Multi.insert(:password, fn %{email: email} ->
-      Ecto.build_assoc(email, :password)
-      |> Password.changeset(%{plaintext: password})
-    end)
+  def register_email_and_password(employee, params) do
+    Crisp.Accounts.Registration.commit(employee, params)
   end
 end

@@ -21,6 +21,9 @@ defmodule CrispWeb.Router do
     # TODO(jouni): Not my favorite controller or method name
     post "/liity", AccountRegistrationController, :create
     get "/tunnistautuminen", AccountRegistrationController, :show
+
+    get "/tunnukset", CredentialsController, :new
+    post "/tunnukset", CredentialsController, :create
   end
 
   # Other scopes may use custom stacks.
