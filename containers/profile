@@ -10,6 +10,9 @@ motd() {
 
 	These are common commands used during development:
 
+	interactive console
+	   iex -S mix
+
 	testing
 	   mix test
 	   mix test --cover
