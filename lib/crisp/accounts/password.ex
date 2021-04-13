@@ -51,4 +51,35 @@ defmodule Crisp.Accounts.Password do
       changeset
     end
   end
+
+  @doc """
+  Verifies the password.
+  If there is no account or the account doesn't have a password, we call
+  `Argon2.no_user_verify/0` to avoid timing attacks.
+  """
+  def valid_password?(%Crisp.Accounts.Email{id: email_id}, password)
+      when byte_size(password) > 0 do
+    # 1. Get salt
+    {:ok, result} = Crisp.Repo.query("SELECT public.get_salt($1)", [email_id])
+
+    # 2. Parse params and actual salt
+    [[prefix | _] | _] = result.rows
+    [_alg, _version, _params, encoded_salt] = String.split(prefix, "$", trim: true)
+
+    # 3. Base64 decode salt
+    {:ok, salt} = Base.decode64(encoded_salt, padding: false)
+
+    # 4. Create a new hash
+    input_hash = Argon2.Base.hash_password(password, salt)
+
+    # 5. Compare
+    {:ok, result} = Crisp.Repo.query("SELECT public.valid_hash($1, $2)", [email_id, input_hash])
+    [[result | _] | _] = result.rows
+    !!result
+  end
+
+  def valid_password?(_, _) do
+    Argon2.no_user_verify()
+    false
+  end
 end

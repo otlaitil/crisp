@@ -11,6 +11,7 @@ defmodule Crisp.Accounts.Registration do
     {:password, :plaintext} => :password
   }
 
+  @primary_key false
   embedded_schema do
     field(:email, :string)
     field(:password, :string)

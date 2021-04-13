@@ -212,4 +212,30 @@ defmodule Crisp.Accounts do
     {:ok, query} = Session.verify_token_query(token)
     Repo.one(query)
   end
+
+  @doc """
+  Gets a account by email and password.
+  ## Examples
+      iex> get_account_by_email_and_password("foo@example.com", "correct_password")
+      %Account{}
+      iex> get_account_by_email_and_password("foo@example.com", "invalid_password")
+      nil
+  """
+  def get_employee_by_email_and_password(email, password)
+      when is_binary(email) and is_binary(password) do
+    email =
+      Repo.get_by(Email, address: email)
+      |> Repo.preload([:employee])
+
+    if Password.valid_password?(email, password), do: email.employee
+  end
+
+  @doc """
+  Generates a session token.
+  """
+  def generate_employee_session_token(account, security) do
+    {token, account_token} = Session.build_token(account, security)
+    Repo.insert!(account_token)
+    token
+  end
 end

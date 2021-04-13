@@ -1,0 +1,21 @@
+<h1>Log in</h1>
+
+<%= form_for @conn, Routes.session_path(@conn, :create), [as: :employee], fn f -> %>
+  <%= if @error_message do %>
+    <div class="alert alert-danger">
+      <p><%= @error_message %></p>
+    </div>
+  <% end %>
+
+  <%= label f, :email %>
+  <%= email_input f, :email, required: true %>
+
+  <%= inputs_for f, :password, fn fp -> %>
+    <%= label fp, :password %>
+    <%= password_input fp, :password, required: true %>
+  <% end %>
+
+  <div>
+    <%= submit "Log in" %>
+  </div>
+<% end %>

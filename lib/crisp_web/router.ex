@@ -20,21 +20,25 @@ defmodule CrispWeb.Router do
   scope "/", CrispWeb do
     pipe_through [:browser, :redirect_authenticated_employee]
 
-    get "/", PageController, :index
     get "/liity", AccountRegistrationController, :new
-    # TODO(jouni): Not my favorite controller or method name
     post "/liity", AccountRegistrationController, :create
+
     get "/tunnistautuminen", AccountRegistrationController, :show
 
     get "/tunnukset", CredentialsController, :new
     post "/tunnukset", CredentialsController, :create
 
     get "/vahvistus/:token", EmailConfirmationController, :confirm
+
+    get "/kirjaudu", SessionController, :new
+    post "/kirjaudu", SessionController, :create
   end
 
   # Authenticated routes
   scope "/", CrispWeb do
-    pipe_through [:browser, :require_authenticated_account]
+    pipe_through [:browser, :require_authenticated_employee]
+
+    get "/", PageController, :index
   end
 
   # Other scopes may use custom stacks.
