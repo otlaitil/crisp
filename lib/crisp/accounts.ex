@@ -238,4 +238,13 @@ defmodule Crisp.Accounts do
     Repo.insert!(account_token)
     token
   end
+
+  @doc """
+  Deletes the signed token with the given context.
+  """
+  def delete_session_token(token) do
+    Repo.delete_all(from Session, where: [token: ^token])
+
+    :ok
+  end
 end

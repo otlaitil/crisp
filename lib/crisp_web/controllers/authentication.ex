@@ -48,6 +48,24 @@ defmodule CrispWeb.Authentication do
   end
 
   @doc """
+  Logs the employee out.
+
+  It clears all session data for safety. See renew_session.
+  """
+  def log_out(conn) do
+    employee_token = get_session(conn, :employee_token)
+    employee_token && Accounts.delete_session_token(employee_token)
+
+    if live_socket_id = get_session(conn, :live_socket_id) do
+      CrispWeb.Endpoint.broadcast(live_socket_id, "disconnect", %{})
+    end
+
+    conn
+    |> renew_session()
+    |> redirect(to: "/")
+  end
+
+  @doc """
   Authenticates the employee by looking into the session token
   """
   def fetch_current_employee(conn, _opts) do
@@ -81,7 +99,7 @@ defmodule CrispWeb.Authentication do
       conn
       |> put_flash(:error, "You must log in to access this page.")
       |> maybe_store_return_to()
-      |> redirect(to: Routes.employee_session_path(conn, :new))
+      |> redirect(to: Routes.session_path(conn, :new))
       |> halt()
     end
   end

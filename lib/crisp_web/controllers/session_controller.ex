@@ -15,4 +15,10 @@ defmodule CrispWeb.SessionController do
       render(conn, "new.html", error_message: "Invalid email or password")
     end
   end
+
+  def delete(conn, _params) do
+    conn
+    |> put_flash(:info, "Logged out successfully.")
+    |> Authentication.log_out()
+  end
 end

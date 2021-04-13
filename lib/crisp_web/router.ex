@@ -39,6 +39,8 @@ defmodule CrispWeb.Router do
     pipe_through [:browser, :require_authenticated_employee]
 
     get "/", PageController, :index
+
+    delete "/kirjaudu_ulos", SessionController, :delete
   end
 
   # Other scopes may use custom stacks.

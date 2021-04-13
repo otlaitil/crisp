@@ -19,6 +19,7 @@
             <% end %>
             <%= if @current_employee do %>
               <li><%= @current_employee.id %></li>
+              <li><%= link "Kirjaudu ulos", to: Routes.session_path(@conn, :delete), method: :delete %></li>
             <% end %>
           </ul>
         </nav>
