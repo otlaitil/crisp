@@ -27,7 +27,7 @@ defmodule Crisp.Accounts.Session do
   Checks if the token is valid and returns its underlying lookup query.
   The query returns the account found by the token.
   """
-  def verify_session_token_query(token) do
+  def verify_token_query(token) do
     query =
       from session in __MODULE__,
         where: session.token == ^token,

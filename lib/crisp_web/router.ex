@@ -1,20 +1,24 @@
 defmodule CrispWeb.Router do
   use CrispWeb, :router
 
+  import CrispWeb.Authentication
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :fetch_current_employee
   end
 
   pipeline :api do
     plug :accepts, ["json"]
   end
 
+  # Non-authenticated routes
   scope "/", CrispWeb do
-    pipe_through :browser
+    pipe_through [:browser, :redirect_authenticated_employee]
 
     get "/", PageController, :index
     get "/liity", AccountRegistrationController, :new
@@ -26,6 +30,11 @@ defmodule CrispWeb.Router do
     post "/tunnukset", CredentialsController, :create
 
     get "/vahvistus/:token", EmailConfirmationController, :confirm
+  end
+
+  # Authenticated routes
+  scope "/", CrispWeb do
+    pipe_through [:browser, :require_authenticated_account]
   end
 
   # Other scopes may use custom stacks.

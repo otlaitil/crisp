@@ -8,7 +8,8 @@ defmodule Crisp.Accounts do
     Employee,
     Password,
     PersonalIdentity,
-    Registration
+    Registration,
+    Session
   }
 
   alias Crisp.IdentityServiceBroker
@@ -205,5 +206,10 @@ defmodule Crisp.Accounts do
     else
       _ -> :error
     end
+  end
+
+  def get_employee_by_session_token(token) do
+    {:ok, query} = Session.verify_token_query(token)
+    Repo.one(query)
   end
 end
