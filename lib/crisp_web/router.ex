@@ -22,11 +22,7 @@ defmodule CrispWeb.Router do
 
     get "/liity", AccountRegistrationController, :new
     post "/liity", AccountRegistrationController, :create
-
     get "/tunnistautuminen", AccountRegistrationController, :show
-
-    get "/tunnukset", CredentialsController, :new
-    post "/tunnukset", CredentialsController, :create
 
     get "/vahvistus/:token", EmailConfirmationController, :confirm
 
@@ -37,6 +33,10 @@ defmodule CrispWeb.Router do
   # Authenticated routes
   scope "/", CrispWeb do
     pipe_through [:browser, :require_authenticated_employee]
+
+    # Onboarding, luo tunnarit
+    get "/tunnukset", CredentialsController, :new
+    post "/tunnukset", CredentialsController, :create
 
     get "/", PageController, :index
 

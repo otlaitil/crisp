@@ -8,8 +8,7 @@ defmodule CrispWeb.CredentialsController do
   end
 
   def create(conn, %{"registration" => params}) do
-    # TODO:
-    employee = Crisp.Repo.get(Crisp.Accounts.Employee, 1)
+    employee = conn.assigns.current_employee
 
     case Accounts.register_email_and_password(
            employee,
