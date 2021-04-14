@@ -115,14 +115,16 @@ defmodule Crisp.Accounts do
     ) do
       case {request.context, employee} do
         {:registration, nil} ->
-          Repo.transaction(register_account_multi(identity, request))
-          {:registered}
+          {:ok, %{employee: employee}} =
+            Repo.transaction(register_account_multi(identity, request))
+
+          {:registered, employee}
 
         {:registration, %Employee{}} ->
           {:login}
 
         {:login, %Employee{}} ->
-          {:login}
+          {:login, employee}
 
         {:login, nil} ->
           {:error, "Employee not found"}

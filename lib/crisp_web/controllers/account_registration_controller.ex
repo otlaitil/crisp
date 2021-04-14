@@ -1,6 +1,7 @@
 defmodule CrispWeb.AccountRegistrationController do
   use CrispWeb, :controller
 
+  import CrispWeb.Authentication
   alias Crisp.Accounts
 
   def new(conn, _params) do
@@ -10,10 +11,6 @@ defmodule CrispWeb.AccountRegistrationController do
 
   # TODO: Create nonce etc.
   def create(conn, %{"idp" => identity_provider} = params) do
-    # TODO: state and code wouldn't actually be in the request. They are
-    # there to fake the redirect from ISB to SP. The redirect url would
-    # actually be `_url` (not `_path`) and redirect should be to
-    # `external` (instead of `to:`).
     redirect_url = Accounts.initiate_identification(identity_provider, :registration)
 
     redirect(conn, external: redirect_url)
@@ -21,11 +18,24 @@ defmodule CrispWeb.AccountRegistrationController do
 
   def show(conn, %{"state" => state, "code" => authorization_code} = params) do
     case Accounts.get_identity(state, authorization_code) do
-      {:registered} -> render(conn, "registered.html")
-      {:login} -> render(conn, "login.html")
-      {:reset_password} -> render(conn, "reset_password.html")
-      {:error, error_message} -> render(conn, "error.html", message: error_message)
-      _ -> render(conn, "error.html", message: "General error")
+      {:registered, employee} ->
+        conn
+        |> log_in(employee)
+        |> redirect(to: Routes.email_confirmation_path(conn, :confirm))
+
+      {:login, employee} ->
+        conn
+        |> log_in(employee)
+        |> render("login.html")
+
+      {:reset_password} ->
+        render(conn, "reset_password.html")
+
+      {:error, error_message} ->
+        render(conn, "error.html", message: error_message)
+
+      _ ->
+        render(conn, "error.html", message: "General error")
     end
   end
 end
