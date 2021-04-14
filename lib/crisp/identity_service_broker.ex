@@ -67,10 +67,11 @@ defmodule Crisp.IdentityServiceBroker do
         {:ok, %HTTPoison.Response{status_code: 200, body: body}} =
           HTTPoison.get("https://isb-test.op.fi/jwks/broker")
 
+        # TODO: Select the key in a sane way! We currently just take the first!
         jwk_from_jwks =
           Jason.decode!(body)
           |> Map.get("keys")
-          |> List.first()
+          |> List.last()
           |> JOSE.JWK.from()
 
         # Verify
