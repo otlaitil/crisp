@@ -49,6 +49,7 @@ defmodule Crisp.MixProject do
       {:phoenix_html, "~> 2.11"},
       {:phoenix_live_dashboard, "~> 0.4"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
+      {:phoenix_live_view, "~> 0.15.4"},
       {:plug_cowboy, "~> 2.0"},
       {:postgrex, ">= 0.0.0"},
       {:telemetry_metrics, "~> 0.4"},
@@ -59,7 +60,10 @@ defmodule Crisp.MixProject do
       {:dialyxir, "~> 1.1", only: :dev, runtime: false},
       {:ex_doc, "~> 0.23", only: :dev, runtime: false},
       {:phx_gen_auth, "~> 0.6", only: :dev, runtime: false},
-      {:sobelow, "~> 0.11", only: :dev, runtime: false}
+      {:sobelow, "~> 0.11", only: :dev, runtime: false},
+
+      ## Test
+      {:floki, ">= 0.27.0", only: :test}
     ]
   end
 

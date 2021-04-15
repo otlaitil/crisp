@@ -23,6 +23,7 @@ defmodule CrispWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import CrispWeb.ConnCase
+      import Phoenix.LiveViewTest
 
       alias CrispWeb.Router.Helpers, as: Routes
 
