@@ -259,4 +259,11 @@ defmodule Crisp.Accounts do
     Employee.changeset(employee, attrs)
     |> Repo.update()
   end
+
+  def cancel_identification(state) do
+    {:ok, query} = AuthorizationCodeRequest.get_by_state_query(state)
+    Repo.delete_all(query)
+
+    :ok
+  end
 end

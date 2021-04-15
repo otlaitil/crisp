@@ -45,4 +45,12 @@ defmodule CrispWeb.StrongAuthenticationController do
         render(conn, "error.html", message: "General error")
     end
   end
+
+  def callback(conn, %{"state" => state, "error" => _error} = _params) do
+    Accounts.cancel_identification(state)
+
+    conn
+    |> put_flash(:info, "Tunnistautuminen peruttu.")
+    |> render("login.html")
+  end
 end
