@@ -250,4 +250,13 @@ defmodule Crisp.Accounts do
 
     :ok
   end
+
+  def change_employee_personal_information(employee, attrs \\ %{}) do
+    Employee.changeset(employee, attrs)
+  end
+
+  def update_employee_personal_information(employee, attrs) do
+    Employee.changeset(employee, attrs)
+    |> Repo.update()
+  end
 end

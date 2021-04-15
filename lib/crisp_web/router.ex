@@ -42,7 +42,8 @@ defmodule CrispWeb.Router do
     post "/tunnukset", CredentialsController, :create
 
     # /kayttoonotto/tunnukset
-    # /kayttoonotto/tiedot
+    get "/kayttoonotto/tiedot", PersonalInformationController, :new
+    post "/kayttoonotto/tiedot", PersonalInformationController, :create
 
     get "/", PageController, :index
 
