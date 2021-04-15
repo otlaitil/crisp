@@ -13,6 +13,15 @@ defmodule Crisp.Accounts.Employee do
     field :nationality, :string
     field :phonenumber, :string
     field :zip, :string
+
+    field :onboarding_state, Ecto.Enum,
+      values: [
+        :create_account,
+        :confirm_email,
+        :business_information,
+        :complete
+      ]
+
     has_one(:personal_identity, Crisp.Accounts.PersonalIdentity)
     has_one(:email, Crisp.Accounts.Email)
 

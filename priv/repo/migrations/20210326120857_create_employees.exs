@@ -13,6 +13,7 @@ defmodule Crisp.Repo.Migrations.CreateEmployees do
       add :iban, :string
       add :business_description, :string
       add :business_scope, :string
+      add :onboarding_state, :string, null: false
 
       timestamps()
     end

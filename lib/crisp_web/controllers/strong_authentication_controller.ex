@@ -14,19 +14,18 @@ defmodule CrispWeb.StrongAuthenticationController do
   end
 
   # TODO: Create nonce etc.
-  def create(conn, %{"idp" => identity_provider, "context" => context} = params) do
+  def create(conn, %{"idp" => identity_provider, "context" => context} = _params) do
     redirect_url = Accounts.initiate_identification(identity_provider, context)
 
     redirect(conn, external: redirect_url)
   end
 
-  def callback(conn, %{"state" => state, "code" => authorization_code} = params) do
+  def callback(conn, %{"state" => state, "code" => authorization_code} = _params) do
     case Accounts.get_identity(state, authorization_code) do
       {:registered, employee} ->
-        # TODO: This url is wrong - this should be like a static view with instructions like "go to your email, check your shit"
         conn
+        |> put_session(:employee_return_to, Routes.credentials_path(conn, :new))
         |> log_in(employee)
-        |> redirect(to: Routes.email_confirmation_path(conn, :confirm))
 
       {:login, employee} ->
         conn

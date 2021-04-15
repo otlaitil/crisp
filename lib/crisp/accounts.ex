@@ -160,7 +160,7 @@ defmodule Crisp.Accounts do
 
   defp register_account_multi(identity, request) do
     Ecto.Multi.new()
-    |> Ecto.Multi.insert(:employee, %Employee{})
+    |> Ecto.Multi.insert(:employee, %Employee{onboarding_state: :create_account})
     |> Ecto.Multi.insert(:personal_identity, fn %{
                                                   employee: employee
                                                 } ->
