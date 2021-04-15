@@ -9,7 +9,7 @@ defmodule CrispWeb.EmailConfirmationController do
       {:ok, _} ->
         conn
         |> put_flash(:info, "Account confirmed successfully.")
-        |> redirect(to: "/")
+        |> redirect(to: Routes.personal_information_path(conn, :new))
 
       :error ->
         # If there is a current account and the account was already confirmed,
@@ -26,5 +26,9 @@ defmodule CrispWeb.EmailConfirmationController do
             |> redirect(to: "/")
         end
     end
+  end
+
+  def show(conn, _params) do
+    render(conn, "show.html")
   end
 end

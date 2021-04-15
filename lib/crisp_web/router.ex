@@ -2,6 +2,7 @@ defmodule CrispWeb.Router do
   use CrispWeb, :router
 
   import CrispWeb.Authentication
+  import CrispWeb.Onboarding
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -10,6 +11,7 @@ defmodule CrispWeb.Router do
     plug :protect_from_forgery
     plug :put_secure_browser_headers
     plug :fetch_current_employee
+    plug :check_onboarding_state
   end
 
   pipeline :api do
@@ -26,11 +28,14 @@ defmodule CrispWeb.Router do
     post "/tunnistaudu", StrongAuthenticationController, :create
     get "/callback", StrongAuthenticationController, :callback
 
-    # /kayttoonotto/vahvistus/:token
-    get "/kayttoonotto/vahvistus/:token", EmailConfirmationController, :confirm
-
     get "/kirjaudu", SessionController, :new
     post "/kirjaudu", SessionController, :create
+  end
+
+  scope "/", CrispWeb do
+    pipe_through [:browser]
+
+    get "/kayttoonotto/vahvistus/:token", EmailConfirmationController, :confirm
   end
 
   # Authenticated routes
@@ -40,6 +45,8 @@ defmodule CrispWeb.Router do
     # Onboarding, luo tunnarit
     get "/tunnukset", CredentialsController, :new
     post "/tunnukset", CredentialsController, :create
+
+    get "/kayttoonotto/vahvistus", EmailConfirmationController, :show
 
     # /kayttoonotto/tunnukset
     get "/kayttoonotto/tiedot", PersonalInformationController, :new

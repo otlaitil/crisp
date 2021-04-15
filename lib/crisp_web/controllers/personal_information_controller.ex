@@ -13,7 +13,7 @@ defmodule CrispWeb.PersonalInformationController do
     employee = conn.assigns.current_employee
 
     case Accounts.update_employee_personal_information(employee, params) do
-      {:ok, _employee} -> render(conn, "ok.html")
+      {:ok, _employee} -> conn |> put_flash(:info, 'Onboarding valmis.') |> redirect(to: "/")
       {:error, changeset} -> render(conn, "new.html", changeset: changeset)
     end
   end
