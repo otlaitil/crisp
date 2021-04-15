@@ -20,11 +20,14 @@ defmodule CrispWeb.Router do
   scope "/", CrispWeb do
     pipe_through [:browser, :redirect_authenticated_employee]
 
-    get "/liity", AccountRegistrationController, :new
-    post "/liity", AccountRegistrationController, :create
-    get "/tunnistautuminen", AccountRegistrationController, :show
+    get "/tunnistaudu", StrongAuthenticationController, :login
+    get "/liity", StrongAuthenticationController, :registration
+    get "/salasana/uusi", StrongAuthenticationController, :reset_password
+    post "/tunnistaudu", StrongAuthenticationController, :create
+    get "/callback", StrongAuthenticationController, :callback
 
-    get "/vahvistus/:token", EmailConfirmationController, :confirm
+    # /kayttoonotto/vahvistus/:token
+    get "/kayttoonotto/vahvistus/:token", EmailConfirmationController, :confirm
 
     get "/kirjaudu", SessionController, :new
     post "/kirjaudu", SessionController, :create
@@ -38,9 +41,12 @@ defmodule CrispWeb.Router do
     get "/tunnukset", CredentialsController, :new
     post "/tunnukset", CredentialsController, :create
 
+    # /kayttoonotto/tunnukset
+    # /kayttoonotto/tiedot
+
     get "/", PageController, :index
 
-    delete "/kirjaudu_ulos", SessionController, :delete
+    delete "/kirjaudu-ulos", SessionController, :delete
   end
 
   # Other scopes may use custom stacks.

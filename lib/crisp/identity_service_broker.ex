@@ -71,7 +71,7 @@ defmodule Crisp.IdentityServiceBroker do
         jwk_from_jwks =
           Jason.decode!(body)
           |> Map.get("keys")
-          |> List.last()
+          |> List.first()
           |> JOSE.JWK.from()
 
         # Verify

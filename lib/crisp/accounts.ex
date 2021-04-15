@@ -62,7 +62,8 @@ defmodule Crisp.Accounts do
   @epoch :calendar.datetime_to_gregorian_seconds(epoch)
 
   def initiate_identification(idp, context) do
-    {state, nonce, request} = AuthorizationCodeRequest.build(idp)
+    # TODO: Validate identity_provider and context
+    {state, nonce, request} = AuthorizationCodeRequest.build(idp, context)
     Crisp.Repo.insert(request)
 
     expired_at_timestamp =
@@ -75,7 +76,7 @@ defmodule Crisp.Accounts do
 
     claims = %{
       "client_id" => "saippuakauppias",
-      "redirect_uri" => "http://localhost:4000/tunnistautuminen",
+      "redirect_uri" => "http://localhost:4000/callback",
       "response_type" => "code",
       "scope" => "openid personal_identity_code profile",
       "ui_locales" => "en",
@@ -121,7 +122,7 @@ defmodule Crisp.Accounts do
           {:registered, employee}
 
         {:registration, %Employee{}} ->
-          {:login}
+          {:login, employee}
 
         {:login, %Employee{}} ->
           {:login, employee}
@@ -135,8 +136,8 @@ defmodule Crisp.Accounts do
         {:reset_password, nil} ->
           {:error, "Employee not found"}
 
-        _ ->
-          :error
+        {request, employee} ->
+          {:error, request, employee}
       end
     else
       nil ->

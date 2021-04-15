@@ -4,7 +4,7 @@
 <%= for idp <- @identity_providers["identityProviders"] do %>
   <li>
     <%= img_tag(idp["imageUrl"], style: "max-width: 150px") %>
-    <%= link(idp["name"], to: Routes.account_registration_path(@conn, :create, idp: idp["ftn_idp_id"]), method: :post) %>
+    <%= link(idp["name"], to: Routes.strong_authentication_path(@conn, :create, idp: idp["ftn_idp_id"], context: @context), method: :post) %>
   </li>
 <% end %>
 </ul>

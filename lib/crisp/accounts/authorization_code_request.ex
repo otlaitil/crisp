@@ -8,7 +8,7 @@ defmodule Crisp.Accounts.AuthorizationCodeRequest do
   @nonce_rand_size 64
 
   schema "authorization_code_requests" do
-    field :context, Ecto.Enum, values: [:registration]
+    field :context, Ecto.Enum, values: [:registration, :login]
     field :expired_at, :naive_datetime
     field :identity_provider_id, :string
     field :nonce, :binary
@@ -18,7 +18,7 @@ defmodule Crisp.Accounts.AuthorizationCodeRequest do
   end
 
   @doc false
-  def build(identity_provider_id) do
+  def build(identity_provider_id, context) do
     expired_at =
       NaiveDateTime.utc_now()
       |> NaiveDateTime.add(600, :second)
@@ -30,11 +30,12 @@ defmodule Crisp.Accounts.AuthorizationCodeRequest do
     nonce_token = :crypto.strong_rand_bytes(@nonce_rand_size)
     hashed_nonce_token = :crypto.hash(@hash_algorithm, nonce_token)
 
+    # TODO: Use changeset!
     {
       Base.url_encode64(state_token, padding: false),
       Base.url_encode64(nonce_token, padding: false),
       %__MODULE__{
-        context: :registration,
+        context: context |> String.to_existing_atom(),
         expired_at: expired_at,
         identity_provider_id: identity_provider_id,
         nonce: hashed_nonce_token,
