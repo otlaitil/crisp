@@ -53,6 +53,14 @@ defmodule CrispWeb.Router do
     post "/tiedot", PersonalInformationController, :create
   end
 
+  # allows employees to log out even if they have not
+  # completed onboarding
+  scope "/", CrispWeb do
+    pipe_through [:browser, :require_authenticated_employee]
+
+    delete "/kirjaudu-ulos", SessionController, :delete
+  end
+
   # Authenticated routes
   scope "/", CrispWeb do
     pipe_through [:browser, :require_authenticated_employee, :check_onboarding_state]
@@ -62,8 +70,6 @@ defmodule CrispWeb.Router do
     post "/tunnukset", CredentialsController, :create
 
     get "/", PageController, :index
-
-    delete "/kirjaudu-ulos", SessionController, :delete
   end
 
   # Other scopes may use custom stacks.
