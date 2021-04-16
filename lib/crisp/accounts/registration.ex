@@ -27,7 +27,8 @@ defmodule Crisp.Accounts.Registration do
       when is_function(confirmation_url_fun, 1) do
     {token, email_changeset} = Email.build(employee, registration.email)
 
-    employee_changeset = change(employee, %{onboarding_state: :confirm_email})
+    onboarding_changeset =
+      Employee.onboarding_changeset(employee, %{onboarding_state: :confirm_email})
 
     Ecto.Multi.new()
     |> Ecto.Multi.insert(:email, email_changeset)
@@ -35,7 +36,7 @@ defmodule Crisp.Accounts.Registration do
       Ecto.build_assoc(email, :password)
       |> Password.changeset(%{plaintext: registration.password})
     end)
-    |> Ecto.Multi.update(:onboarding_state, employee_changeset)
+    |> Ecto.Multi.update(:onboarding_state, onboarding_changeset)
     |> Ecto.Multi.run(:instructions, fn _repo, %{email: email} ->
       AccountNotifier.deliver_confirmation_instructions(email, confirmation_url_fun.(token))
     end)

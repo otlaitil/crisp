@@ -38,4 +38,19 @@ defmodule CrispWeb.Onboarding do
       |> halt()
     end
   end
+
+  def redirect_onboarded_employees(%{assigns: %{current_employee: nil}} = conn, _opts), do: conn
+
+  def redirect_onboarded_employees(%{assigns: %{current_employee: employee}} = conn, _opts) do
+    case employee.onboarding_state do
+      :complete ->
+        conn
+        |> put_flash(:info, "Onboarding on jo tehty.")
+        |> redirect(to: "/")
+        |> halt()
+
+      _ ->
+        conn
+    end
+  end
 end

@@ -28,6 +28,12 @@ defmodule Crisp.Accounts.Employee do
     timestamps()
   end
 
+  def onboarding_changeset(employee, attrs) do
+    employee
+    |> cast(attrs, [:onboarding_state])
+    |> validate_required([:onboarding_state])
+  end
+
   @doc false
   def changeset(employee, attrs) do
     employee
@@ -41,7 +47,8 @@ defmodule Crisp.Accounts.Employee do
       :zip,
       :iban,
       :business_description,
-      :business_scope
+      :business_scope,
+      :onboarding_state
     ])
     |> validate_required([
       :firstname,
@@ -53,7 +60,8 @@ defmodule Crisp.Accounts.Employee do
       :zip,
       :iban,
       :business_description,
-      :business_scope
+      :business_scope,
+      :onboarding_state
     ])
   end
 end

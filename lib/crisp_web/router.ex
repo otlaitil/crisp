@@ -11,7 +11,6 @@ defmodule CrispWeb.Router do
     plug :protect_from_forgery
     plug :put_secure_browser_headers
     plug :fetch_current_employee
-    plug :check_onboarding_state
   end
 
   pipeline :api do
@@ -32,25 +31,35 @@ defmodule CrispWeb.Router do
     post "/kirjaudu", SessionController, :create
   end
 
+  # Public
   scope "/", CrispWeb do
     pipe_through [:browser]
 
     get "/kayttoonotto/vahvistus/:token", EmailConfirmationController, :confirm
   end
 
+  scope "/kayttoonotto", CrispWeb do
+    pipe_through [
+      :browser,
+      :require_authenticated_employee,
+      :check_onboarding_state,
+      :redirect_onboarded_employees
+    ]
+
+    get "/vahvistus", EmailConfirmationController, :show
+
+    # /kayttoonotto/tunnukset
+    get "/tiedot", PersonalInformationController, :new
+    post "/tiedot", PersonalInformationController, :create
+  end
+
   # Authenticated routes
   scope "/", CrispWeb do
-    pipe_through [:browser, :require_authenticated_employee]
+    pipe_through [:browser, :require_authenticated_employee, :check_onboarding_state]
 
     # Onboarding, luo tunnarit
     get "/tunnukset", CredentialsController, :new
     post "/tunnukset", CredentialsController, :create
-
-    get "/kayttoonotto/vahvistus", EmailConfirmationController, :show
-
-    # /kayttoonotto/tunnukset
-    get "/kayttoonotto/tiedot", PersonalInformationController, :new
-    post "/kayttoonotto/tiedot", PersonalInformationController, :create
 
     get "/", PageController, :index
 
