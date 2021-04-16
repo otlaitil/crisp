@@ -201,16 +201,24 @@ defmodule Crisp.Accounts do
   If the token matches, the account account is marked as confirmed
   and the token is deleted.
   """
-  def confirm_email(employee, token) do
-    employee_changeset =
-      Employee.onboarding_changeset(employee, %{onboarding_state: :business_information})
-
+  def confirm_email(token) do
     case Email.verify_email_query(token) do
       {:ok, query} ->
-        email = Repo.one(query)
-        {:ok, email} = Repo.update(Email.confirm_changeset(email))
-        {:ok, _employee} = Repo.update(employee_changeset)
-        {:ok, email}
+        case Repo.one(query) do
+          %Email{} = email ->
+            {:ok, email} = Repo.update(Email.confirm_changeset(email))
+
+            employee_changeset =
+              Employee.onboarding_changeset(email.employee, %{
+                onboarding_state: :business_information
+              })
+
+            {:ok, _employee} = Repo.update(employee_changeset)
+            {:ok, email}
+
+          _ ->
+            :error
+        end
 
       _ ->
         :error

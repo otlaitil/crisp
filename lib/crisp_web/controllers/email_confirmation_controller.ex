@@ -4,8 +4,8 @@ defmodule CrispWeb.EmailConfirmationController do
 
   # Do not log in the account after confirmation to avoid a
   # leaked token giving the account access to the account.
-  def confirm(%{assigns: %{current_employee: employee}} = conn, %{"token" => token}) do
-    case Accounts.confirm_email(employee, token) do
+  def confirm(conn, %{"token" => token}) do
+    case Accounts.confirm_email(token) do
       {:ok, _} ->
         conn
         |> put_flash(:info, "Account confirmed successfully.")
