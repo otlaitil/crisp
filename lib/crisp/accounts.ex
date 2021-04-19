@@ -202,26 +202,17 @@ defmodule Crisp.Accounts do
   and the token is deleted.
   """
   def confirm_email(token) do
-    case Email.verify_email_query(token) do
-      {:ok, query} ->
-        case Repo.one(query) do
-          %Email{} = email ->
-            {:ok, email} = Repo.update(Email.confirm_changeset(email))
-
-            employee_changeset =
-              Employee.onboarding_changeset(email.employee, %{
-                onboarding_state: :business_information
-              })
-
-            {:ok, _employee} = Repo.update(employee_changeset)
-            {:ok, email}
-
-          _ ->
-            :error
-        end
-
-      _ ->
-        :error
+    with(
+      {:ok, query} <- Email.verify_email_query(token),
+      %Email{} = email <- Repo.one(query),
+      {:ok, email} <- Repo.update(Email.confirm_changeset(email)),
+      employee_changeset <-
+        Employee.onboarding_changeset(email.employee, %{onboarding_state: :business_information}),
+      {:ok, _employee} <- Repo.update(employee_changeset)
+    ) do
+      {:ok, email}
+    else
+      _ -> :error
     end
   end
 
