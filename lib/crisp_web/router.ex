@@ -2,6 +2,7 @@ defmodule CrispWeb.Router do
   use CrispWeb, :router
 
   import CrispWeb.Authentication
+  import CrispWeb.Onboarding
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -26,28 +27,49 @@ defmodule CrispWeb.Router do
     post "/tunnistaudu", StrongAuthenticationController, :create
     get "/callback", StrongAuthenticationController, :callback
 
-    # /kayttoonotto/vahvistus/:token
-    get "/kayttoonotto/vahvistus/:token", EmailConfirmationController, :confirm
-
     get "/kirjaudu", SessionController, :new
     post "/kirjaudu", SessionController, :create
   end
 
-  # Authenticated routes
+  # Public
+  scope "/", CrispWeb do
+    pipe_through [:browser]
+
+    get "/kayttoonotto/vahvistus/:token", EmailConfirmationController, :confirm
+  end
+
+  scope "/kayttoonotto", CrispWeb do
+    pipe_through [
+      :browser,
+      :require_authenticated_employee,
+      :check_onboarding_state,
+      :redirect_onboarded_employees
+    ]
+
+    get "/vahvistus", EmailConfirmationController, :show
+
+    # /kayttoonotto/tunnukset
+    get "/tiedot", PersonalInformationController, :new
+    post "/tiedot", PersonalInformationController, :create
+  end
+
+  # allows employees to log out even if they have not
+  # completed onboarding
   scope "/", CrispWeb do
     pipe_through [:browser, :require_authenticated_employee]
+
+    delete "/kirjaudu-ulos", SessionController, :delete
+  end
+
+  # Authenticated routes
+  scope "/", CrispWeb do
+    pipe_through [:browser, :require_authenticated_employee, :check_onboarding_state]
 
     # Onboarding, luo tunnarit
     get "/tunnukset", CredentialsController, :new
     post "/tunnukset", CredentialsController, :create
 
-    # /kayttoonotto/tunnukset
-    get "/kayttoonotto/tiedot", PersonalInformationController, :new
-    post "/kayttoonotto/tiedot", PersonalInformationController, :create
-
     get "/", PageController, :index
-
-    delete "/kirjaudu-ulos", SessionController, :delete
   end
 
   # Other scopes may use custom stacks.

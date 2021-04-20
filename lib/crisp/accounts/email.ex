@@ -53,6 +53,7 @@ defmodule Crisp.Accounts.Email do
 
         query =
           from email in __MODULE__,
+            preload: [:employee],
             where: email.verification_token == ^hashed_token and is_nil(email.verified_at)
 
         {:ok, query}

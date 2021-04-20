@@ -18,7 +18,7 @@ defmodule CrispWeb.CredentialsController do
       {:ok, email} ->
         conn
         |> put_flash(:info, "Email sent to #{email.address}")
-        |> render("ok.html")
+        |> redirect(to: Routes.email_confirmation_path(conn, :show))
 
       {:error, changeset} ->
         render(conn, "new.html", changeset: changeset)
