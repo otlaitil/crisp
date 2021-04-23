@@ -1,7 +1,7 @@
 defmodule Crisp.HumanizedWeatherTest do
   use ExUnit.Case, async: true
 
-  import Mox
+  import Hammox
 
   # Make sure mocks are verified when the test exits
   setup :verify_on_exit!

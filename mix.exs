@@ -64,7 +64,7 @@ defmodule Crisp.MixProject do
       {:sobelow, "~> 0.11", only: :dev, runtime: false},
 
       ## Test
-      {:mox, "~> 1.0", only: :test}
+      {:hammox, "~> 0.5", only: :test}
     ]
   end
 
