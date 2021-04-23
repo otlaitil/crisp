@@ -3,10 +3,25 @@ defmodule Crisp.WeatherAPI do
     @type latlong :: {lat :: float, long :: float}
     @callback temp(latlong()) :: {:ok, integer()}
     @callback humidity(latlong()) :: {:ok, integer()}
+    @callback maybe() :: :ok | :error
   end
 
   @behaviour __MODULE__.Interface
 
   def temp(latlong), do: {:ok, 1}
   def humidity(latlong), do: {:ok, 1}
+
+  # NOTE
+  #
+  # Dialyzer *wont* warn about this function, because of success typing.
+  # If one code path is correct, then its happy!
+  def maybe() do
+    a = Enum.random(0..1)
+
+    if a == 1 do
+      :ok
+    else
+      :not_part_of_the_callback
+    end
+  end
 end
