@@ -61,7 +61,10 @@ defmodule Crisp.MixProject do
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1", only: :dev, runtime: false},
       {:ex_doc, "~> 0.23", only: :dev, runtime: false},
-      {:sobelow, "~> 0.11", only: :dev, runtime: false}
+      {:sobelow, "~> 0.11", only: :dev, runtime: false},
+
+      ## Test
+      {:mox, "~> 1.0", only: :test}
     ]
   end
 
