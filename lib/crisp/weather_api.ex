@@ -8,8 +8,8 @@ defmodule Crisp.WeatherAPI do
 
   @behaviour __MODULE__.Interface
 
-  def temp(latlong), do: {:ok, 1}
-  def humidity(latlong), do: {:ok, 1}
+  def temp(_latlong), do: {:ok, 1}
+  def humidity(_latlong), do: {:ok, 1}
 
   # NOTE
   #
