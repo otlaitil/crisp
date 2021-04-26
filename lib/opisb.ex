@@ -18,4 +18,10 @@ defmodule OPISB do
         :error
     end
   end
+
+  def initiate_identification(idp, opts \\ []) do
+    OPISB.Initiate.claims(idp, @client_id, @redirect_uri, opts)
+    |> OPISB.Initiate.sign(@signing_key)
+    |> OPISB.Initiate.build_url(@base_url)
+  end
 end
