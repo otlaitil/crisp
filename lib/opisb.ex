@@ -2,8 +2,10 @@ defmodule OPISB do
   @moduledoc """
   """
 
-  @base_url "http://localhost:4010"
-  @client_id "saippuakauppias"
+  @base_url Application.get_env(:opisb, :base_url)
+  @client_id Application.get_env(:opisb, :client_id)
+  @redirect_uri Application.get_env(:opisb, :redirect_uri)
+  @signing_key Application.get_env(:opisb, :signing_key)
 
   def get_embedded_ui() do
     url = @base_url <> "/api/embedded-ui/" <> @client_id
