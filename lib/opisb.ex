@@ -9,14 +9,16 @@ defmodule OPISB do
   @decrypt_key Application.get_env(:opisb, :decrypt_key)
 
   def get_embedded_ui() do
-    url = @base_url <> "/api/embedded-ui/" <> @client_id
+    url = OPISB.GetEmbeddedUi.build_url(@base_url, @client_id)
 
     case HTTPoison.get(url) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        {:ok, Jason.decode!(body)}
+        body
+        |> Jason.decode!()
+        |> OPISB.GetEmbeddedUi.map_to_struct()
 
-      _ ->
-        :error
+      error ->
+        IO.inspect(error, label: "OPISB.get_embedded_ui/0")
     end
   end
 
