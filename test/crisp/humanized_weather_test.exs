@@ -1,5 +1,6 @@
 defmodule Crisp.HumanizedWeatherTest do
   use ExUnit.Case, async: true
+  use Hammox.Protect, module: Crisp.WeatherAPI, behaviour: Crisp.WeatherAPI.Interface
 
   import Hammox
 
@@ -16,7 +17,6 @@ defmodule Crisp.HumanizedWeatherTest do
   end
 
   test "real WeatherAPI" do
-    temp = Hammox.protect({Crisp.WeatherAPI, :temp, 1}, Crisp.WeatherAPI.Interface)
-    assert temp.({50.06, 19.94}) == {:ok , 1}
+    assert temp({50.06, 19.94}) == {:ok , 1}
   end
 end
