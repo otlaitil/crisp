@@ -20,5 +20,6 @@ services:
       - db
     ports:
       - "4000:4000"
+      - "4010:4010"
     volumes:
       - ..:/app

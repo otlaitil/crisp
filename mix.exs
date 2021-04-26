@@ -26,7 +26,7 @@ defmodule Crisp.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {Crisp.Application, []},
+      mod: {Crisp.Application, [env: Mix.env()]},
       extra_applications: [:logger, :runtime_tools]
     ]
   end

@@ -5,8 +5,8 @@ defmodule Crisp.Application do
 
   use Application
 
-  def start(_type, _args) do
-    children = [
+  def start(_type, args) do
+    default_children = [
       # Start the Ecto repository
       Crisp.Repo,
       # Start the Telemetry supervisor
@@ -18,6 +18,23 @@ defmodule Crisp.Application do
       # Start a worker by calling: Crisp.Worker.start_link(arg)
       # {Crisp.Worker, arg}
     ]
+
+    children =
+      case args do
+        [env: :dev] ->
+          default_children ++
+            [{Plug.Cowboy, scheme: :http, plug: OPISB.MockServer, options: [port: 4010]}]
+
+        [env: :test] ->
+          default_children ++
+            [{Plug.Cowboy, scheme: :http, plug: OPISB.MockServer, options: [port: 4010]}]
+
+        [env: :prod] ->
+          default_children
+
+        [_] ->
+          []
+      end
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
