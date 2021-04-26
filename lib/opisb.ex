@@ -2,7 +2,7 @@ defmodule OPISB do
   @moduledoc """
   """
 
-  @base_url "https://isb-test.op.fi"
+  @base_url "http://localhost:4010"
   @client_id "saippuakauppias"
 
   def get_embedded_ui() do
@@ -10,8 +10,6 @@ defmodule OPISB do
 
     case HTTPoison.get(url) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        require IEx
-        IEx.pry()
         {:ok, Jason.decode!(body)}
 
       _ ->

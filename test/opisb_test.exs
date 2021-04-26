@@ -1,13 +1,9 @@
-defmodule OPISB.MockServer do
-  use Plug.Router
+defmodule OPISBTest do
+  use ExUnit.Case, async: true
 
-  plug :match
-  plug :dispatch
-
-  # TODO: Returns 404 when client_id is not found
-  get "/api/embedded-ui/:client_id" do
-    body =
-      Jason.encode!(%{
+  describe "get_embedded_ui/0" do
+    test "it works" do
+      embedded_ui = %{
         "disturbanceInfo" => %{
           "header" => "Häiriöilmoitus",
           "text" => "Tässä on häiriöilmoituksen tilavaraus toteutuksen helpottamiseksi"
@@ -25,10 +21,9 @@ defmodule OPISB.MockServer do
           "OP Tunnistuksen välityspalvelun tarjoaa OP Ryhmän osuuspankit ja OP Yrityspankki Oyj.",
         "privacyNoticeLink" => "https://isb-test.op.fi/privacy-info",
         "privacyNoticeText" => "OP tietosuojaseloste"
-      })
+      }
 
-    conn
-    |> put_resp_content_type("application/json")
-    |> send_resp(200, body)
+      assert OPISB.get_embedded_ui() == {:ok, embedded_ui}
+    end
   end
 end
