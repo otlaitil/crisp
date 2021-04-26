@@ -1,11 +1,13 @@
 defmodule OPISB.MockServer do
+  @client_id Application.get_env(:opisb, :client_id)
+
   use Plug.Router
 
   plug :match
   plug :dispatch
 
   # TODO: Returns 404 when client_id is not found
-  get "/api/embedded-ui/:client_id" do
+  get "/api/embedded-ui/#{@client_id}" do
     body =
       Jason.encode!(%{
         "disturbanceInfo" => %{
@@ -30,5 +32,9 @@ defmodule OPISB.MockServer do
     conn
     |> put_resp_content_type("application/json")
     |> send_resp(200, body)
+  end
+
+  match _ do
+    send_resp(conn, 404, "Not found")
   end
 end
