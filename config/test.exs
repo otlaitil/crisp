@@ -31,4 +31,4 @@ config :crisp, :weather_api, Crisp.MockWeatherAPI
 config :opisb, :base_url, "http://localhost:4010"
 config :opisb, :client_id, "saippuakauppias"
 config :opisb, :redirect_uri, "http://localhost:4000/callback"
-config :opisb, :signing_key, Crisp.Accounts.pem
+config :opisb, :signing_key, "test"
