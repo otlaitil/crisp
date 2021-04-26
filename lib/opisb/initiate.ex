@@ -1,6 +1,6 @@
 defmodule OPISB.Initiate do
   def claims(idp, client_id, redirect_uri, opts \\ [])
-  when is_binary(idp) and is_binary(client_id) and is_binary(redirect_uri) do
+      when is_binary(idp) and is_binary(client_id) and is_binary(redirect_uri) do
     state = Keyword.get(opts, :state)
     nonce = Keyword.get(opts, :nonce)
     locale = Keyword.get(opts, :locale)
@@ -34,7 +34,7 @@ defmodule OPISB.Initiate do
   end
 
   def build_url(token, base_url) do
-    base_url <> "/oauth/authorize"
+    (base_url <> "/oauth/authorize")
     |> URI.parse()
     |> Map.put(:query, URI.encode_query(%{"request" => token}))
     |> URI.to_string()
