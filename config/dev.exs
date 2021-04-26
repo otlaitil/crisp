@@ -78,4 +78,4 @@ config :phoenix, :plug_init_mode, :runtime
 config :opisb, :base_url, "http://localhost:4010"
 config :opisb, :client_id, "saippuakauppias"
 config :opisb, :redirect_uri, "http://localhost:4000/callback"
-config :opisb, :signing_key, "test"
+config :opisb, :signing_key, File.read!("priv/opisb/sandbox-sp-signing-key.pem")
