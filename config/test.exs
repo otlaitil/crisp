@@ -32,3 +32,4 @@ config :opisb, :base_url, "http://localhost:4010"
 config :opisb, :client_id, "saippuakauppias"
 config :opisb, :redirect_uri, "http://localhost:4000/callback"
 config :opisb, :signing_key, File.read!("priv/opisb/sandbox-sp-signing-key.pem")
+config :opisb, :decrypt_key, File.read!("priv/opisb/sandbox-sp-encryption-key.pem")
