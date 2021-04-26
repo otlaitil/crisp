@@ -26,4 +26,16 @@ defmodule OPISBTest do
       assert OPISB.get_embedded_ui() == {:ok, embedded_ui}
     end
   end
+
+  describe "initiate_identification/2" do
+    test "it works" do
+      url = OPISB.initiate_identification("idp")
+
+      assert %URI{
+               host: "localhost",
+               path: "/oauth/authorize",
+               query: "request=" <> _
+             } = URI.parse(url)
+    end
+  end
 end
