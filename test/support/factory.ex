@@ -2,7 +2,11 @@ defmodule Crisp.Factory do
   alias Crisp.Repo
 
   alias Crisp.Employees.Employee
-  alias Crisp.Accounts.Email
+
+  alias Crisp.Accounts.{
+    Email,
+    Session
+  }
 
   def build(:employee) do
     %Employee{
@@ -18,6 +22,11 @@ defmodule Crisp.Factory do
       address: "test@example.com",
       verification_token: "verification_token"
     }
+  end
+
+  def build(:session, %{employee: employee}) do
+    {_token, session} = Session.build_token(employee, :strong)
+    session
   end
 
   def build(factory_name, attributes) do

@@ -4,6 +4,7 @@ defmodule Crisp.Employees do
   """
 
   alias Crisp.Repo
+  alias Crisp.Accounts.Session
   alias Crisp.Employees.Employee
 
   @doc """
@@ -21,5 +22,23 @@ defmodule Crisp.Employees do
   @spec get(integer()) :: Employee | nil
   def get(id) do
     Repo.get(Employee, id)
+  end
+
+  @doc """
+  Gets an Employee by session token.
+
+  ## Examples
+
+      iex> get_by_session_token("valid-token")
+      %Employee{}
+
+      iex> get("invalid-token")
+      nil
+
+  """
+  @spec get(String.t()) :: Employee | nil
+  def get_by_session_token(token) do
+    {:ok, query} = Session.verify_token_query(token)
+    Repo.one(query)
   end
 end
