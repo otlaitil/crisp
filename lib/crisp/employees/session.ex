@@ -1,4 +1,4 @@
-defmodule Crisp.Accounts.Session do
+defmodule Crisp.Employees.Session do
   use Ecto.Schema
   import Ecto.Query
 

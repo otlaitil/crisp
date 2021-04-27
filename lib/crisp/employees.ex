@@ -4,8 +4,11 @@ defmodule Crisp.Employees do
   """
 
   alias Crisp.Repo
-  alias Crisp.Accounts.Session
-  alias Crisp.Employees.Employee
+
+  alias Crisp.Employees.{
+    Employee,
+    Session
+  }
 
   @doc """
   Gets an Employee by id.
