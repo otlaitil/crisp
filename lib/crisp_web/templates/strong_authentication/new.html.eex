@@ -1,10 +1,20 @@
 <h1>Tunnistaudu</h1>
 
+<p class="alert alert-danger" role="alert">
+  <strong><%= @embedded_ui["disturbanceInfo"]["header"] %></strong>
+  <br>
+  <%= @embedded_ui["disturbanceInfo"]["text"] %>
+</p>
+
 <ul>
-<%= for idp <- @identity_providers["identityProviders"] do %>
-  <li>
-    <%= img_tag(idp["imageUrl"], style: "max-width: 150px") %>
-    <%= link(idp["name"], to: Routes.strong_authentication_path(@conn, :create, idp: idp["ftn_idp_id"], context: @context), method: :post) %>
-  </li>
-<% end %>
+  <%= for idp <- @embedded_ui["identityProviders"] do %>
+    <li>
+      <%= img_tag(idp["imageUrl"], style: "max-width: 150px") %>
+      <%= link(idp["name"], to: Routes.strong_authentication_path(@conn, :create, idp: idp["ftn_idp_id"], context: @context), method: :post) %>
+    </li>
+  <% end %>
 </ul>
+
+<p><%= @embedded_ui["isbConsent"] %></p>
+<p><%= @embedded_ui["isbProviderInfo"] %></p>
+<%= link(@embedded_ui["privacyNoticeText"], to: @embedded_ui["privacyNoticeLink"]) %>

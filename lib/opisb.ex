@@ -17,7 +17,6 @@ defmodule OPISB do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         body
         |> Jason.decode!()
-        |> GetEmbeddedUi.map_to_struct()
 
       error ->
         IO.inspect(error, label: "OPISB.get_embedded_ui/0")

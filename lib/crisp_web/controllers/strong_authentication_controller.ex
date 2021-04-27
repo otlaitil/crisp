@@ -9,8 +9,8 @@ defmodule CrispWeb.StrongAuthenticationController do
   def reset_password(conn, _params), do: new(conn, :reset_password)
 
   def new(conn, context) do
-    {:ok, identity_providers} = Accounts.list_identity_providers()
-    render(conn, "new.html", context: context, identity_providers: identity_providers)
+    eui = OPISB.get_embedded_ui()
+    render(conn, "new.html", context: context, embedded_ui: eui)
   end
 
   # TODO: Create nonce etc.
