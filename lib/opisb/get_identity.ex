@@ -28,21 +28,22 @@ defmodule OPISB.GetIdentity do
       |> URI.parse()
       |> URI.to_string()
 
-    body =
-      {:form,
-       [
-         {"code", authorization_code},
-         {"grant_type", "authorization_code"},
-         {"client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"},
-         {"client_assertion", token}
-       ]}
-
-    headers = [
-      {"Content-Type", "application/x-www-form-urlencoded"},
-      {"Accept", "application/json"}
-    ]
-
-    {url, body, headers}
+    %HTTPoison.Request{
+      method: :post,
+      url: url,
+      body:
+        {:form,
+         [
+           {"code", authorization_code},
+           {"grant_type", "authorization_code"},
+           {"client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"},
+           {"client_assertion", token}
+         ]},
+      headers: [
+        Accept: "application/json",
+        "Content-Type": "application/x-www-form-urlencoded"
+      ]
+    }
   end
 
   def decrypt(id_token, decrypt_key) do
