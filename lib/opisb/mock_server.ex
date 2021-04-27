@@ -9,6 +9,8 @@ defmodule OPISB.MockServer do
 
   # TODO: Returns 404 when client_id is not found
   get "/api/embedded-ui/#{@client_id}" do
+    :ets.new(:authorization_codes, [:set, :public, :named_table])
+
     body =
       Jason.encode!(%{
         "disturbanceInfo" => %{
@@ -58,7 +60,21 @@ defmodule OPISB.MockServer do
       |> elem(1)
 
     # 3. Save authorization_code and identity_token to ets
+    :ets.insert(:authorization_codes, {authorization_code, identity_token})
+
     # 4. Redirect client to token.redirect_uri with authorization_code and state
+    state = token.fields["state"]
+    redirect_query = %{"authorization_code" => authorization_code, "state" => state}
+
+    redirect_uri =
+      URI.parse(token.fields["redirect_uri"])
+      |> Map.put(:query, URI.encode_query(redirect_query))
+      |> URI.to_string()
+
+    conn
+    |> put_resp_header("Location", redirect_uri)
+    |> resp(302, "")
+    |> send_resp()
   end
 
   match _ do
