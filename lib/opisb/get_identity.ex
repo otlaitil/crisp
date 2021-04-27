@@ -52,6 +52,8 @@ defmodule OPISB.GetIdentity do
     decrypted_token
   end
 
+  # TODO: Rename this function
+  # TODO: Select the key in a sane way (not first in the list)
   def jwks() do
     {:ok, %HTTPoison.Response{status_code: 200, body: body}} =
       HTTPoison.get("https://isb-test.op.fi/jwks/broker")
@@ -69,7 +71,7 @@ defmodule OPISB.GetIdentity do
     claims
   end
 
-  def validate(claims) do
+  def validate(_claims) do
     # iss: This should be the same as issuer key in .well-known/openid-configuration metadata
     # aud: It MUST contain the SP client_id
     # exp: Expiration time in seconds since UNIX epoch on or after which the ID Token MUST NOT be accepted for processing
