@@ -72,35 +72,12 @@ defmodule Crisp.Accounts do
       |> :calendar.datetime_to_gregorian_seconds()
       |> Kernel.-(@epoch)
 
-    current_time = Crisp.IdentityServiceBroker.current_time()
-
-    claims = %{
-      "client_id" => "saippuakauppias",
-      "redirect_uri" => "http://localhost:4000/callback",
-      "response_type" => "code",
-      "scope" => "openid personal_identity_code profile",
-      "ui_locales" => "en",
-      "state" => state,
-      "ftn_idp_id" => idp,
-      "exp" => expired_at_timestamp,
-      "nonce" => nonce,
-      "jti" => Crisp.IdentityServiceBroker.generate_jti(),
-      "iss" => "saippuakauppias",
-      "iat" => current_time,
-      "nbf" => current_time
-    }
-
-    IO.inspect(claims, label: "Generated claims")
-
-    jwk = JOSE.JWK.from_pem(pem)
-    jws = JOSE.JWS.from_map(%{"alg" => "RS256", "typ" => "JWT"})
-    result = JOSE.JWT.sign(jwk, jws, claims)
-    {_, token} = JOSE.JWS.compact(result)
-
-    "https://isb-test.op.fi/oauth/authorize"
-    |> URI.parse()
-    |> Map.put(:query, URI.encode_query(%{"request" => token}))
-    |> URI.to_string()
+    OPISB.initiate_identification(
+      idp,
+      state: state,
+      nonce: nonce,
+      exp: expired_at_timestamp
+    )
   end
 
   # TODO: Bad name? What is the responsibility of this module?
