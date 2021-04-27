@@ -1,4 +1,4 @@
-defmodule Crisp.Accounts.Employee do
+defmodule Crisp.Employees.Employee do
   use Ecto.Schema
   import Ecto.Changeset
 

@@ -2,10 +2,11 @@ defmodule Crisp.Accounts do
   import Ecto.Query
   alias Crisp.Repo
 
+  alias Crisp.Employees.Employee
+
   alias Crisp.Accounts.{
     AuthorizationCodeRequest,
     Email,
-    Employee,
     Password,
     PersonalIdentity,
     Registration,

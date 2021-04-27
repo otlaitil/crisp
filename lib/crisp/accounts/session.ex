@@ -8,7 +8,7 @@ defmodule Crisp.Accounts.Session do
   schema "sessions" do
     field :security, Ecto.Enum, values: [:weak, :strong]
     field :token, :binary
-    belongs_to :employee, Crisp.Accounts.Employee
+    belongs_to :employee, Crisp.Employees.Employee
 
     timestamps(updated_at: false)
   end
