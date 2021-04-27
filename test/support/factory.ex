@@ -1,10 +1,8 @@
 defmodule Crisp.Factory do
   alias Crisp.Repo
 
-  alias Crisp.Accounts.{
-    Employee,
-    Email
-  }
+  alias Crisp.Employees.Employee
+  alias Crisp.Accounts.Email
 
   def build(:employee) do
     %Employee{

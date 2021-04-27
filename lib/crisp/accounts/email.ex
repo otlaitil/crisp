@@ -11,7 +11,7 @@ defmodule Crisp.Accounts.Email do
     field :address, :string
     field :verification_token, :binary
     field :verified_at, :naive_datetime
-    belongs_to :employee, Crisp.Accounts.Employee
+    belongs_to :employee, Crisp.Employees.Employee
     has_one :password, Crisp.Accounts.Password
 
     timestamps()

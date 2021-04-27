@@ -2,7 +2,8 @@ defmodule Crisp.Accounts.Registration do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Crisp.Accounts.{AccountNotifier, Employee, Email, Password}
+  alias Crisp.Employees.Employee
+  alias Crisp.Accounts.{AccountNotifier, Email, Password}
   alias Crisp.Repo
 
   @required_fields [:email, :password]
