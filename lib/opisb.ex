@@ -41,13 +41,19 @@ defmodule OPISB do
         %{"id_token" => id_token} = Jason.decode!(body)
         decrypted_token = GetIdentity.decrypt(id_token, @decrypt_key)
 
-        # GetIdentity.jwks()
+        # TODO: should be GetIdentity.jwks()
         jwk = JOSE.JWK.from_pem(@signing_key)
 
-        IO.inspect(decrypted_token, label: "OPISB decrypted_token")
-        IO.inspect(jwk, label: "OPISB jwk before verify")
         claims = GetIdentity.verify(jwk, Jason.decode!(decrypted_token))
-        {:ok, GetIdentity.validate(claims)}
+        claims = GetIdentity.validate(claims)
+
+        {:ok,
+         %{
+           birthdate: claims["birthdate"],
+           name: claims["name"],
+           personal_identity_code: claims["personal_identity_code"],
+           nonce: claims["nonce"]
+         }}
 
       _ ->
         :http_error

@@ -75,7 +75,22 @@ defmodule OPISB.MockServer do
     # 2. Generate identity token
     enc_jwk = JOSE.JWK.from_pem_file("priv/opisb/sandbox-sp-encryption-key.pem")
     sign_jwk = JOSE.JWK.from_pem_file("priv/opisb/sandbox-sp-signing-key.pem")
-    jwt = JOSE.JWT.from(%{"test" => true})
+
+    jwt =
+      JOSE.JWT.from(%{
+        "birthdate" => "12.05.1990",
+        "name" => "Etunimi Sukunimi",
+        "personal_identity_code" => "120590-1328",
+        "iss" => "http://localhost",
+        "sub" => "59cc74ea-40d7-4000-85c6-e5f7c2e14205",
+        "aud" => @client_id,
+        "exp" => OPISB.Claim.expiration_time(),
+        "iat" => OPISB.Claim.current_time(),
+        "auth_time" => OPISB.Claim.current_time(),
+        "nonce" => token.fields["nonce"],
+        "acr" => "http://ftn.ficora.fi/2017/loatest2"
+      })
+
     jws = JOSE.JWS.from_map(%{"alg" => "RS256", "typ" => "JWT"})
 
     signed_jwt = JOSE.JWT.sign(sign_jwk, jws, jwt)
