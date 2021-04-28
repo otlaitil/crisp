@@ -11,10 +11,13 @@ defmodule OPISB do
   @decrypt_key Application.get_env(:opisb, :decrypt_key)
 
   def get_embedded_ui() do
+    # TODO: build_request instead of build_url
     url = GetEmbeddedUi.build_url(@base_url, @client_id)
 
+    # TODO: Build %EmbeddedUI{} with list of %IdentityProvide{}
     case HTTPoison.get(url) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        # TODO: Use Jason.decode/2 instead of Jason.decode!/2 and return :decode_error in case of failure
         body
         |> Jason.decode!()
 
@@ -38,15 +41,18 @@ defmodule OPISB do
 
     case HTTPoison.request(request) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        # TODO: Use Jason.decode/2 instead of Jason.decode!/2 and return :decode_error in case of failure
         %{"id_token" => id_token} = Jason.decode!(body)
         decrypted_token = GetIdentity.decrypt(id_token, @decrypt_key)
 
         # TODO: should be GetIdentity.jwks()
         jwk = JOSE.JWK.from_pem(@signing_key)
 
+        # TODO: Use Jason.decode/2 instead of Jason.decode!/2 and return :decode_error in case of failure
         claims = GetIdentity.verify(jwk, Jason.decode!(decrypted_token))
         claims = GetIdentity.validate(claims)
 
+        # TODO: Build Identity
         {:ok,
          %{
            birthdate: claims["birthdate"],

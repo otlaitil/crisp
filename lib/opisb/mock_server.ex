@@ -31,7 +31,6 @@ defmodule OPISB.MockServer do
     Plug.Cowboy.shutdown(ref)
   end
 
-  # TODO: Returns 404 when client_id is not found
   get "/api/embedded-ui/#{@client_id}" do
     body =
       Jason.encode!(%{
@@ -130,7 +129,10 @@ defmodule OPISB.MockServer do
       } ->
         IO.inspect(token, label: "MockServer /oauth/token token")
         IO.inspect(authorization_code, label: "MockServer /oauth/token authorization_code")
+
+        # TODO: Handle when not found
         [{_authorization_code, id_token}] = :ets.lookup(__MODULE__, authorization_code)
+        # TODO: Add rest of the fields
         send_resp(conn, 200, Jason.encode!(%{"id_token" => id_token}))
 
       _ ->
