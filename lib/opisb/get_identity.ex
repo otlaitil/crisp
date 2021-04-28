@@ -71,10 +71,11 @@ defmodule OPISB.GetIdentity do
     claims
   end
 
-  def validate(_claims) do
+  def validate(claims) do
     # iss: This should be the same as issuer key in .well-known/openid-configuration metadata
     # aud: It MUST contain the SP client_id
     # exp: Expiration time in seconds since UNIX epoch on or after which the ID Token MUST NOT be accepted for processing
     # nonce: must be the same we have
+    claims
   end
 end

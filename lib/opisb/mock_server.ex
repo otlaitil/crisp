@@ -4,6 +4,7 @@ defmodule OPISB.MockServer do
   import Plug.Conn
   use Plug.Router
 
+  plug Plug.Parsers, parsers: [:urlencoded]
   plug :match
   plug :dispatch
 
@@ -72,11 +73,17 @@ defmodule OPISB.MockServer do
       |> Base.url_encode64(padding: false)
 
     # 2. Generate identity token
-    jwk = JOSE.JWK.from_pem_file("priv/opisb/sandbox-sp-encryption-key.pem")
+    enc_jwk = JOSE.JWK.from_pem_file("priv/opisb/sandbox-sp-encryption-key.pem")
+    sign_jwk = JOSE.JWK.from_pem_file("priv/opisb/sandbox-sp-signing-key.pem")
     jwt = JOSE.JWT.from(%{"test" => true})
+    jws = JOSE.JWS.from_map(%{"alg" => "RS256", "typ" => "JWT"})
+
+    signed_jwt = JOSE.JWT.sign(sign_jwk, jws, jwt)
+
+    IO.inspect(signed_jwt, label: "MockServer signed_jwt")
 
     identity_token =
-      JOSE.JWT.encrypt(jwk, jwt)
+      JOSE.JWT.encrypt(enc_jwk, signed_jwt)
       |> JOSE.JWE.compact()
       |> elem(1)
 
@@ -85,7 +92,7 @@ defmodule OPISB.MockServer do
 
     # 4. Redirect client to token.redirect_uri with authorization_code and state
     state = token.fields["state"]
-    redirect_query = %{"authorization_code" => authorization_code, "state" => state}
+    redirect_query = %{"code" => authorization_code, "state" => state}
 
     redirect_uri =
       URI.parse(token.fields["redirect_uri"])
@@ -96,6 +103,24 @@ defmodule OPISB.MockServer do
     |> put_resp_header("Location", redirect_uri)
     |> resp(302, "")
     |> send_resp()
+  end
+
+  post "/oauth/token" do
+    case conn.params do
+      %{
+        "client_assertion" => token,
+        "client_assertion_type" => "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+        "code" => authorization_code,
+        "grant_type" => "authorization_code"
+      } ->
+        IO.inspect(token, label: "MockServer /oauth/token token")
+        IO.inspect(authorization_code, label: "MockServer /oauth/token authorization_code")
+        [{_authorization_code, id_token}] = :ets.lookup(__MODULE__, authorization_code)
+        send_resp(conn, 200, Jason.encode!(%{"id_token" => id_token}))
+
+      _ ->
+        send_resp(conn, 400, "Bad request")
+    end
   end
 
   match _ do

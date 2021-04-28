@@ -33,18 +33,24 @@ defmodule OPISB do
     request =
       GetIdentity.claims(@client_id, @redirect_uri)
       |> GetIdentity.sign(@signing_key)
-      |> GetIdentity.build_request(@base_url, authorization_code)
+      |> GetIdentity.build_request(authorization_code, @base_url)
+      |> IO.inspect(label: "req")
 
     case HTTPoison.request(request) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         %{"id_token" => id_token} = Jason.decode!(body)
         decrypted_token = GetIdentity.decrypt(id_token, @decrypt_key)
-        jwk = GetIdentity.jwks()
-        claims = GetIdentity.verify(jwk, decrypted_token)
-        GetIdentity.validate(claims)
+
+        # GetIdentity.jwks()
+        jwk = JOSE.JWK.from_pem(@signing_key)
+
+        IO.inspect(decrypted_token, label: "OPISB decrypted_token")
+        IO.inspect(jwk, label: "OPISB jwk before verify")
+        claims = GetIdentity.verify(jwk, Jason.decode!(decrypted_token))
+        {:ok, GetIdentity.validate(claims)}
 
       _ ->
-        :error
+        :http_error
     end
   end
 end
