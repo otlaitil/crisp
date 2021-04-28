@@ -26,7 +26,6 @@ defmodule Crisp.Application do
 
         [env: :test] ->
           default_children ++ [OPISB.MockServer]
-          []
 
         [env: :prod] ->
           default_children
