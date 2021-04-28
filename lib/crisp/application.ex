@@ -22,12 +22,11 @@ defmodule Crisp.Application do
     children =
       case args do
         [env: :dev] ->
-          default_children ++
-            [{Plug.Cowboy, scheme: :http, plug: OPISB.MockServer, options: [port: 4010]}]
+          default_children ++ [OPISB.MockServer]
 
         [env: :test] ->
-          default_children ++
-            [{Plug.Cowboy, scheme: :http, plug: OPISB.MockServer, options: [port: 4010]}]
+          default_children ++ [OPISB.MockServer]
+          []
 
         [env: :prod] ->
           default_children

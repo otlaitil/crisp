@@ -7,10 +7,31 @@ defmodule OPISB.MockServer do
   plug :match
   plug :dispatch
 
+  def child_spec(opts) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, [opts]},
+      type: :worker,
+      restart: :permanent,
+      shutdown: 500
+    }
+  end
+
+  def init(options), do: options
+
+  def start_link(_opts), do: start()
+
+  def start(ref \\ __MODULE__) do
+    _tid = :ets.new(__MODULE__, [:set, :public, :named_table])
+    Plug.Cowboy.http(__MODULE__, [], ref: ref, port: 4010)
+  end
+
+  def stop(ref \\ __MODULE__) do
+    Plug.Cowboy.shutdown(ref)
+  end
+
   # TODO: Returns 404 when client_id is not found
   get "/api/embedded-ui/#{@client_id}" do
-    :ets.new(:authorization_codes, [:set, :public, :named_table])
-
     body =
       Jason.encode!(%{
         "disturbanceInfo" => %{
@@ -60,7 +81,7 @@ defmodule OPISB.MockServer do
       |> elem(1)
 
     # 3. Save authorization_code and identity_token to ets
-    :ets.insert(:authorization_codes, {authorization_code, identity_token})
+    :ets.insert(__MODULE__, {authorization_code, identity_token})
 
     # 4. Redirect client to token.redirect_uri with authorization_code and state
     state = token.fields["state"]
