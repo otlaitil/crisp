@@ -53,7 +53,7 @@ defmodule OPISB do
 
         # TODO: Use Jason.decode/2 instead of Jason.decode!/2 and return :decode_error in case of failure
         claims = GetIdentity.verify(jwk, Jason.decode!(decrypted_token))
-        claims = GetIdentity.validate(claims)
+        {:ok, claims} = GetIdentity.validate(claims, @client_id, @base_url)
 
         # TODO: Build Identity
         {:ok,
