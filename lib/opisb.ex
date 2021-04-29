@@ -2,7 +2,7 @@ defmodule OPISB do
   @moduledoc """
   """
 
-  alias OPISB.{GetEmbeddedUi, Initiate, GetIdentity}
+  alias OPISB.{GetEmbeddedUi, Initiate, GetIdentity, EmbeddedUi}
 
   @base_url Application.get_env(:opisb, :base_url)
   @client_id Application.get_env(:opisb, :client_id)
@@ -13,15 +13,20 @@ defmodule OPISB do
   def get_embedded_ui(opts \\ []) do
     request = GetEmbeddedUi.build_request(@base_url, @client_id, opts)
 
-    # TODO: Build %EmbeddedUI{} with list of %IdentityProvide{}
-    case HTTPoison.request(request) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        # TODO: Use Jason.decode/2 instead of Jason.decode!/2 and return :decode_error in case of failure
-        body
-        |> Jason.decode!()
+    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- HTTPoison.request(request),
+         {:ok, decoded_body} <- Jason.decode(body),
+         changeset <- EmbeddedUi.changeset(%EmbeddedUi{}, decoded_body),
+         {:ok, embedded_ui} <- Ecto.Changeset.apply_action(changeset, :insert) do
+      {:ok, embedded_ui}
+    else
+      {:error, %HTTPoison.Response{status_code: status_code, body: body}} ->
+        {:error, "Bad HTTP response", {status_code, body}}
 
-      error ->
-        IO.inspect(error, label: "OPISB.get_embedded_ui/0")
+      {:error, %Jason.DecodeError{data: data}} ->
+        {:error, "Invalid JSON", data}
+
+      {:error, %Ecto.Changeset{errors: errors}} ->
+        {:error, "Validation error", errors}
     end
   end
 
