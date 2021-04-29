@@ -10,8 +10,8 @@ defmodule OPISB do
   @signing_key Application.get_env(:opisb, :signing_key)
   @decrypt_key Application.get_env(:opisb, :decrypt_key)
 
-  def get_embedded_ui() do
-    request = GetEmbeddedUi.build_request(@base_url, @client_id)
+  def get_embedded_ui(opts \\ []) do
+    request = GetEmbeddedUi.build_request(@base_url, @client_id, opts)
 
     # TODO: Build %EmbeddedUI{} with list of %IdentityProvide{}
     case HTTPoison.request(request) do
