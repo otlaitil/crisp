@@ -36,12 +36,11 @@ defmodule OPISB do
     |> Initiate.build_url(@base_url)
   end
 
-  def get_identity(authorization_code) do
+  def get_identity(authorization_code, opts \\ []) do
     request =
       GetIdentity.claims(@client_id, @redirect_uri)
       |> GetIdentity.sign(@signing_key)
       |> GetIdentity.build_request(authorization_code, @base_url)
-      |> IO.inspect(label: "req")
 
     case HTTPoison.request(request) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->

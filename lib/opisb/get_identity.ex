@@ -71,11 +71,41 @@ defmodule OPISB.GetIdentity do
     claims
   end
 
-  def validate(claims) do
-    # iss: This should be the same as issuer key in .well-known/openid-configuration metadata
-    # aud: It MUST contain the SP client_id
-    # exp: Expiration time in seconds since UNIX epoch on or after which the ID Token MUST NOT be accepted for processing
-    # nonce: must be the same we have
-    claims
+  # iss: This should be the same as issuer key in .well-known/openid-configuration metadata
+  # aud: It MUST contain the SP client_id
+  # exp: Expiration time in seconds since UNIX epoch on or after which the ID Token MUST NOT be accepted for processing
+  # nonce: must be the same we have
+  def validate(claims, client_id, base_url, opts \\ []) do
+    data = %{}
+    types = %{iss: :string, aud: :string, exp: :integer, nonce: :string}
+    nonce = Keyword.get(opts, :nonce)
+
+    {data, types}
+    |> Ecto.Changeset.cast(claims, Map.keys(types))
+    |> Ecto.Changeset.validate_required([:iss, :aud, :exp])
+    |> Ecto.Changeset.validate_inclusion(:iss, [base_url])
+    |> Ecto.Changeset.validate_inclusion(:aud, [client_id])
+    |> Ecto.Changeset.validate_number(:exp, greater_than: OPISB.Claim.current_time())
+    |> validate_nonce(nonce, [])
+    |> Ecto.Changeset.apply_action(:insert)
+  end
+
+  defp validate_nonce(changeset, nil, _opts), do: changeset
+
+  defp validate_nonce(changeset, expected, _opts) do
+    Ecto.Changeset.validate_change(changeset, :nonce, fn :nonce, actual ->
+      case Base.url_decode64(actual, padding: false) do
+        {:ok, decoded_nonce} ->
+          hashed_nonce = :crypto.hash(:sha256, decoded_nonce)
+
+          case Plug.Crypto.secure_compare(expected, hashed_nonce) do
+            true -> []
+            false -> [nonce: "mismatch"]
+          end
+
+        :error ->
+          [nonce: "decoding_error"]
+      end
+    end)
   end
 end
