@@ -11,11 +11,10 @@ defmodule OPISB do
   @decrypt_key Application.get_env(:opisb, :decrypt_key)
 
   def get_embedded_ui() do
-    # TODO: build_request instead of build_url
-    url = GetEmbeddedUi.build_url(@base_url, @client_id)
+    request = GetEmbeddedUi.build_request(@base_url, @client_id)
 
     # TODO: Build %EmbeddedUI{} with list of %IdentityProvide{}
-    case HTTPoison.get(url) do
+    case HTTPoison.request(request) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         # TODO: Use Jason.decode/2 instead of Jason.decode!/2 and return :decode_error in case of failure
         body
