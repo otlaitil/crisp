@@ -36,36 +36,44 @@ defmodule OPISB do
     |> Initiate.build_url(@base_url)
   end
 
-  def get_identity(authorization_code, opts \\ []) do
+  def get_identity(authorization_code, _opts \\ []) do
     request =
       GetIdentity.claims(@client_id, @redirect_uri)
       |> GetIdentity.sign(@signing_key)
       |> GetIdentity.build_request(authorization_code, @base_url)
 
-    case HTTPoison.request(request) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        # TODO: Use Jason.decode/2 instead of Jason.decode!/2 and return :decode_error in case of failure
-        %{"id_token" => id_token} = Jason.decode!(body)
-        decrypted_token = GetIdentity.decrypt(id_token, @decrypt_key)
+    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- HTTPoison.request(request),
+         {:ok, %{"id_token" => id_token}} <- Jason.decode(body),
+         decrypted_token <- GetIdentity.decrypt(id_token, @decrypt_key),
 
-        # TODO: should be GetIdentity.jwks()
-        jwk = JOSE.JWK.from_pem(@signing_key)
+         # TODO: should be GetIdentity.jwks()
+         jwk <- JOSE.JWK.from_pem(@signing_key),
+         {:ok, decoded_token} <- Jason.decode(decrypted_token),
+         {:ok, claims} <- GetIdentity.verify(jwk, decoded_token),
+         {:ok, claims} <- GetIdentity.validate(claims, @client_id, @base_url) do
+      # TODO: Build Identity
+      {:ok,
+       %{
+         birthdate: claims["birthdate"],
+         name: claims["name"],
+         personal_identity_code: claims["personal_identity_code"],
+         nonce: claims["nonce"]
+       }}
+    else
+      {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
+        {:error, "Bad HTTP response", {status_code, body}}
 
-        # TODO: Use Jason.decode/2 instead of Jason.decode!/2 and return :decode_error in case of failure
-        claims = GetIdentity.verify(jwk, Jason.decode!(decrypted_token))
-        {:ok, claims} = GetIdentity.validate(claims, @client_id, @base_url)
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        {:error, "Bad HTTP request", reason}
 
-        # TODO: Build Identity
-        {:ok,
-         %{
-           birthdate: claims["birthdate"],
-           name: claims["name"],
-           personal_identity_code: claims["personal_identity_code"],
-           nonce: claims["nonce"]
-         }}
+      {:error, %Jason.DecodeError{data: data}} ->
+        {:error, "Invalid JSON", data}
 
-      _ ->
-        :http_error
+      {:verify_error, error} ->
+        {:error, "Verify error", error}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:error, "Validation error", changeset}
     end
   end
 end

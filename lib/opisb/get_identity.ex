@@ -65,10 +65,13 @@ defmodule OPISB.GetIdentity do
   end
 
   def verify(jwk, decrypted_token) do
-    {true, %JOSE.JWT{fields: claims}, _jws} =
-      JOSE.JWT.verify_strict(jwk, ["RS256"], decrypted_token)
+    case JOSE.JWT.verify_strict(jwk, ["RS256"], decrypted_token) do
+      {true, %JOSE.JWT{fields: claims}, _jws} ->
+        {:ok, claims}
 
-    claims
+      {false, error} ->
+        {:verify_error, error}
+    end
   end
 
   # iss: This should be the same as issuer key in .well-known/openid-configuration metadata
