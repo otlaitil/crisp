@@ -7,13 +7,20 @@ defmodule OPISB.EmbeddedUi do
     embeds_many(:identityProviders, OPISB.IdentityProvider)
     field(:isbConsent, :string)
     field(:isbProviderInfo, :string)
-    field(:isbProviderLink, :string)
+    field(:privacyNoticeLink, :string)
+    field(:privacyNoticeText, :string)
   end
 
   def changeset(struct, attrs) do
     struct
-    |> cast(attrs, [:isbConsent, :isbProviderInfo, :isbProviderLink])
+    |> cast(attrs, [:isbConsent, :isbProviderInfo, :privacyNoticeLink, :privacyNoticeText])
     |> cast_embed(:identityProviders, required: true)
-    |> validate_required([:identityProviders, :isbConsent, :isbProviderInfo, :isbProviderLink])
+    |> validate_required([
+      :identityProviders,
+      :isbConsent,
+      :isbProviderInfo,
+      :privacyNoticeLink,
+      :privacyNoticeText
+    ])
   end
 end

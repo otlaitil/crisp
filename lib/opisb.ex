@@ -19,8 +19,11 @@ defmodule OPISB do
          {:ok, embedded_ui} <- Ecto.Changeset.apply_action(changeset, :insert) do
       {:ok, embedded_ui}
     else
-      {:error, %HTTPoison.Response{status_code: status_code, body: body}} ->
+      {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
         {:error, "Bad HTTP response", {status_code, body}}
+
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        {:error, "Bad HTTP request", reason}
 
       {:error, %Jason.DecodeError{data: data}} ->
         {:error, "Invalid JSON", data}

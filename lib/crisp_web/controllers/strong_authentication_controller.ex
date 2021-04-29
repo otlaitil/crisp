@@ -9,7 +9,7 @@ defmodule CrispWeb.StrongAuthenticationController do
   def reset_password(conn, _params), do: new(conn, :reset_password)
 
   def new(conn, context) do
-    eui = OPISB.get_embedded_ui()
+    {:ok, eui} = OPISB.get_embedded_ui()
     render(conn, "new.html", context: context, embedded_ui: eui)
   end
 
