@@ -80,7 +80,7 @@ defmodule OPISB.MockServer do
         "birthdate" => "12.05.1990",
         "name" => "Etunimi Sukunimi",
         "personal_identity_code" => "120590-1328",
-        "iss" => "http://localhost",
+        "iss" => "http://localhost:4010",
         "sub" => "59cc74ea-40d7-4000-85c6-e5f7c2e14205",
         "aud" => @client_id,
         "exp" => OPISB.Claim.expiration_time(),

@@ -77,7 +77,21 @@ defmodule OPISB.GetIdentity do
   # nonce: must be the same we have
   def validate(claims, client_id, base_url, opts \\ []) do
     data = %{}
-    types = %{iss: :string, aud: :string, exp: :integer, nonce: :string}
+
+    types = %{
+      acr: :string,
+      aud: :string,
+      auth_time: :integer,
+      birthdate: :string,
+      exp: :integer,
+      iat: :integer,
+      iss: :string,
+      name: :string,
+      nonce: :string,
+      personal_identity_code: :string,
+      sub: :string
+    }
+
     nonce = Keyword.get(opts, :nonce)
 
     {data, types}

@@ -87,10 +87,10 @@ defmodule Crisp.Accounts do
     with(
       {:ok, query} <- AuthorizationCodeRequest.get_by_state_query(state),
       %AuthorizationCodeRequest{} = request <- Repo.one(query),
-      {:ok, identity} <- OPISB.get_identity(authorization_code),
-      :ok <- AuthorizationCodeRequest.verify_nonce(request, identity.nonce),
-      employee = get_employee_by_personal_identity_code(identity.personal_identity_code)
+      {:ok, identity} <- OPISB.get_identity(authorization_code)
     ) do
+      employee = get_employee_by_personal_identity_code(identity.personal_identity_code)
+
       case {request.context, employee} do
         {:registration, nil} ->
           {:ok, %{employee: employee}} =

@@ -59,12 +59,13 @@ defmodule OPISB do
         {:ok, claims} = GetIdentity.validate(claims, @client_id, @base_url)
 
         # TODO: Build Identity
+
         {:ok,
          %{
-           birthdate: claims["birthdate"],
-           name: claims["name"],
-           personal_identity_code: claims["personal_identity_code"],
-           nonce: claims["nonce"]
+           birthdate: claims.birthdate,
+           name: claims.name,
+           personal_identity_code: claims.personal_identity_code,
+           nonce: claims.nonce
          }}
 
       _ ->
