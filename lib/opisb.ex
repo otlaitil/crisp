@@ -48,9 +48,7 @@ defmodule OPISB do
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- HTTPoison.request(request),
          {:ok, %{"id_token" => id_token}} <- Jason.decode(body),
          decrypted_token <- GetIdentity.decrypt(id_token, @decrypt_key),
-
-         # TODO: should be GetIdentity.jwks()
-         jwk <- JOSE.JWK.from_pem(@signing_key),
+         jwk <- GetIdentity.jwks(@base_url),
          {:ok, decoded_token} <- Jason.decode(decrypted_token),
          {:ok, claims} <- GetIdentity.verify(jwk, decoded_token),
          {:ok, claims} <- GetIdentity.validate(claims, @client_id, @base_url) do

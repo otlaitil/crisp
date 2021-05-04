@@ -54,9 +54,13 @@ defmodule OPISB.GetIdentity do
 
   # TODO: Rename this function
   # TODO: Select the key in a sane way (not first in the list)
-  def jwks() do
-    {:ok, %HTTPoison.Response{status_code: 200, body: body}} =
-      HTTPoison.get("https://isb-test.op.fi/jwks/broker")
+  def jwks(base_url) do
+    url =
+      (base_url <> "/jwks/broker")
+      |> URI.parse()
+      |> URI.to_string()
+
+    {:ok, %HTTPoison.Response{status_code: 200, body: body}} = HTTPoison.get(url)
 
     Jason.decode!(body)
     |> Map.get("keys")

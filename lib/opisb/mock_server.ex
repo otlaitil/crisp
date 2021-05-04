@@ -1,5 +1,6 @@
 defmodule OPISB.MockServer do
   @client_id Application.get_env(:opisb, :client_id)
+  @signing_key Application.get_env(:opisb, :signing_key)
 
   import Plug.Conn
   use Plug.Router
@@ -51,6 +52,20 @@ defmodule OPISB.MockServer do
           "OP Tunnistuksen välityspalvelun tarjoaa OP Ryhmän osuuspankit ja OP Yrityspankki Oyj.",
         "privacyNoticeLink" => "https://isb-test.op.fi/privacy-info",
         "privacyNoticeText" => "OP tietosuojaseloste"
+      })
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, body)
+  end
+
+  get "/jwks/broker" do
+    pem = @signing_key
+    {_meta, key} = JOSE.JWK.from_pem(pem) |> JOSE.JWK.to_public_map()
+
+    body =
+      Jason.encode!(%{
+        "keys" => [key]
       })
 
     conn
